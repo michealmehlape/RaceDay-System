@@ -23,11 +23,13 @@ jobs:
 
       - name: Check ERD file exists (PNG or PDF)
         run: |
-          if ! ls docs/*.png docs/*.pdf 1> /dev/null 2>&1; then
+          shopt -s nullglob
+          files=(docs/*.png docs/*.pdf)
+          if [ ${#files[@]} -eq 0 ]; then
             echo "::error::No ERD file (.png or .pdf) found in /docs"
             exit 1
           fi
-          echo "ERD file found."
+          echo "ERD file found: ${files[0]}"
 
       - name: Check endpoint plan exists (PDF or Markdown)
         run: |
