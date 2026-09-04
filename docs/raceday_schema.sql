@@ -1,3 +1,4 @@
+-- DROP DB If it already exists
 USE master;
 GO
 
@@ -9,7 +10,7 @@ GO
 DROP DATABASE RaceDayDB;
 GO
 
-
+-- Create new DB
 CREATE DATABASE RaceDayDB;
 GO
 
@@ -26,7 +27,7 @@ CREATE TABLE Users (
     PasswordHash    NVARCHAR(255)   NOT NULL,
     Role            VARCHAR(20)     NOT NULL DEFAULT 'Participant'
                         CONSTRAINT CK_Users_Role CHECK (Role IN ('Organiser','Participant')),
-    ProfilePictureUrl NVARCHAR(500) NULL,  
+    ProfilePictureUrl NVARCHAR(500) NULL,
     CreatedAt       DATETIME        NOT NULL DEFAULT GETDATE()
 );
 GO
@@ -40,7 +41,7 @@ CREATE TABLE Events (
     EventDate       DATE            NOT NULL,
     Location        NVARCHAR(150)   NOT NULL,
     Description     NVARCHAR(500)   NULL,
-    BannerImageUrl  NVARCHAR(500)   NULL,  
+    BannerImageUrl  NVARCHAR(500)   NULL, 
     OrganiserID     INT             NOT NULL,
     CreatedAt       DATETIME        NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_Events_Organiser FOREIGN KEY (OrganiserID)
@@ -108,3 +109,49 @@ CREATE TABLE Results (
         REFERENCES Enrolments(EnrolmentID)
 );
 GO
+
+
+--   Seeding data
+
+
+-- Organisers (2)
+INSERT INTO Users (FullName, Email, PasswordHash, Role) VALUES
+('Naledi Khumalo', 'naledi.khumalo@raceday.co.za', 'hashed_pw_1', 'Organiser'),
+('Ryan Fischer',   'ryan.fischer@raceday.co.za',   'hashed_pw_2', 'Organiser');
+
+-- Participants (2)
+INSERT INTO Users (FullName, Email, PasswordHash, Role) VALUES
+('Thabo Mokoena',  'thabo.mokoena@example.com',  'hashed_pw_3', 'Participant'),
+('Sarah van Wyk',  'sarah.vanwyk@example.com',   'hashed_pw_4', 'Participant');
+
+-- Events (3)
+INSERT INTO Events (EventName, EventDate, Location, Description, BannerImageUrl, OrganiserID) VALUES
+('Johannesburg City Marathon', '2026-04-18', 'Johannesburg, Gauteng', 'Annual road marathon through the city centre.', 'https://racedaystorage.blob.core.windows.net/event-banners/jhb-marathon.jpg', 1),
+('Cape Town Trail Run',        '2026-05-09', 'Table Mountain, Cape Town', 'Scenic trail run with multiple distance options.', 'https://racedaystorage.blob.core.windows.net/event-banners/ct-trail.jpg', 2),
+('Pretoria Fun Run',           '2026-06-20', 'Pretoria, Gauteng', 'Family-friendly fun run in support of local charities.', NULL, 1);
+
+-- Link a second (assistant) organiser to one event to demonstrate the many-to-many relationship
+INSERT INTO EventOrganisers (EventID, UserID, AssignedRole) VALUES
+(1, 2, 'Assistant');
+
+-- Categories (at least one per event)
+INSERT INTO Categories (EventID, CategoryName, DistanceKM, MaxParticipants, EntryFee) VALUES
+(1, '10km Fun Run', 10.00, 500, 150.00),
+(1, '42.2km Full Marathon', 42.20, 1000, 350.00),
+(2, '21km Half Trail', 21.00, 300, 250.00),
+(2, '10km Trail', 10.00, 300, 180.00),
+(3, '5km Fun Run', 5.00, 400, 80.00);
+
+-- Sample enrolments
+INSERT INTO Enrolments (ParticipantID, CategoryID, BibNumber, Status) VALUES
+(3, 1, 'BIB-1001', 'Registered'),
+(4, 2, 'BIB-1002', 'Registered'),
+(3, 3, 'BIB-2001', 'Registered'),
+(4, 5, 'BIB-3001', 'Registered');
+
+-- Sample results (for enrolments that have taken place)
+INSERT INTO Results (EnrolmentID, FinishTime, Position, Status) VALUES
+(1, '00:52:14', 1, 'Finished'),
+(2, '03:45:02', 5, 'Finished');
+GO
+
