@@ -21,7 +21,7 @@ application code was written.
   endpoint_plan.md      -> Full API endpoint plan (Section B)
   raceday_schema.sql    -> Database creation + seed script (Section C)
 /.github/workflows
-  validate.yml           -> CI check that /docs contains the required files
+  validate.yml           -> checks that /docs contains the required files
 README.md
 ```
 
