@@ -35,20 +35,7 @@ Organisers and Events (an event can have more than one organiser assisting
 it, and an organiser can help run more than one event), in addition to each
 event's single primary `OrganiserID`.
 
-`Users.ProfilePictureUrl` and `Events.BannerImageUrl` are included now so
-that Part 3 (Azure Blob Storage integration) doesn't require a schema
-change later — these columns simply hold the blob URL returned after an
-upload, and stay `NULL` until Part 3 is built.
 
-## Running the SQL script
-
-1. Open SQL Server Management Studio (SSMS) and connect to your instance.
-2. Open `docs/raceday_schema.sql`.
-3. Execute the script (F5). It drops and recreates `RaceDayDB`, creates all
-   tables with their constraints, and seeds sample data (2 organisers,
-   2 participants, 3 events, categories per event, and sample enrolments).
-4. The final `SELECT` statement in the script returns row counts per table
-   as a quick sanity check.
 
 ## CI/CD
 
