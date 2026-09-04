@@ -26,3 +26,4 @@ Roles: **Organiser**, **Participant**. "None" = public, "Any" = any logged-in us
 | POST | /api/enrolments/{id}/results | Captures a result for an enrolment. | Organiser (owner) | `{ finishTime, position, status }` | 201 Created – result <br> 400 Bad Request <br> 403 Forbidden <br> 404 Not Found |
 | GET | /api/categories/{id}/results | Returns the results/leaderboard for a category. | None | None | 200 OK – array of results, ordered by position <br> 404 Not Found |
 | GET | /api/results/{id} | Returns a single result. | None | None | 200 OK – result <br> 404 Not Found |
+
