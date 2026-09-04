@@ -59,7 +59,8 @@ repository root.
 
 **Screenshot of a successful green build:**
 
-`> [PASTE YOUR SCREENSHOT HERE ONCE THE WORKFLOW HAS RUN SUCCESSFULLY]`
+<img width="2879" height="993" alt="image" src="https://github.com/user-attachments/assets/5c3716c3-5140-4180-860a-7cc1f0e51c38" />
+
 
 ## Video walkthrough
 
