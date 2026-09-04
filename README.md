@@ -51,7 +51,6 @@ repository root.
 
 ## Video walkthrough
 
-Creating an Unlisted YouTube video walking through the planning documents, ERD
-decisions, endpoint plan choices, and a live run of the SQL script in SSMS:
+Video walking through the  ERD Diagram, endpoint plan choices, and a live run of the SQL script in SSMS:
 
-`> Youtuber Link `
+`> https://youtu.be/iHSIG5ppvxs `
