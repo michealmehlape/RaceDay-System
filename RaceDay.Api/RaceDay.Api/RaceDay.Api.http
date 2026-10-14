@@ -1,6 +1,25 @@
-@RaceDay.Api_HostAddress = http://localhost:5161
+@host = https://localhost:7014
 
-GET {{RaceDay.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Register a participant
+POST {{host}}/api/auth/register
+Content-Type: application/json
 
-###
+{ "fullName": "Test Runner", "email": "runner@test.com", "password": "Password123", "role": "Participant" }
+
+### Register an organiser (correct code)
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{ "fullName": "Test Organiser", "email": "org@test.com", "password": "Password123", "role": "Organiser", "organiserCode": "RACEDAY-ORG-3454" }
+
+### Organiser with a wrong code (expect 403)
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{ "fullName": "Sneaky", "email": "sneaky@test.com", "password": "Password123", "role": "Organiser", "organiserCode": "wrong" }
+
+### Login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "runner@test.com", "password": "Password123" }
