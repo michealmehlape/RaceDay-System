@@ -86,6 +86,25 @@ public class EventsController : ControllerBase
         return Ok(ToResponse(ev));
     }
 
+    [HttpDelete("{id}")]
+    [SessionAuthorize(Role = "Organiser")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var ev = await _db.Events.FindAsync(id);
+        if (ev is null) return NotFound("Event not found.");
+
+        if (ev.OrganiserID != HttpContext.Session.GetCurrentUserId())
+            return StatusCode(StatusCodes.Status403Forbidden, "You can only delete your own events.");
+
+        // The database refuses to delete an event that still has categories (DeleteBehavior.Restrict)
+        if (await _db.Categories.AnyAsync(c => c.EventID == id))
+            return Conflict("Delete this event's categories first.");
+
+        _db.Events.Remove(ev);
+        await _db.SaveChangesAsync();
+        return Ok("Event deleted.");
+    }
+
     private static EventResponse ToResponse(Event e) => new()
     {
         EventID = e.EventID,
