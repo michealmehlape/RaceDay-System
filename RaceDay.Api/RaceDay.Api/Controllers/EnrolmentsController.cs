@@ -15,6 +15,28 @@ public class EnrolmentsController : ControllerBase
 
     public EnrolmentsController(RaceDayDbContext db) => _db = db;
 
+    /// <summary>
+    /// Enrols the logged-in Participant in a category.
+    /// </summary>
+    /// <remarks>
+    /// Participant only. No body is needed: the category comes from the URL and the participant from the session.
+    /// A bib number is generated automatically. Enrolment is refused if the event has passed,
+    /// the Participant is already enrolled, or the category is full.
+    /// </remarks>
+    /// <param name="categoryId">The category's ID.</param>
+    /// <response code="201">Enrolled. Returns the enrolment, including the bib number.</response>
+    /// <response code="400">The event has already taken place.</response>
+    /// <response code="401">Not logged in.</response>
+    /// <response code="403">The user is not a Participant.</response>
+    /// <response code="404">No category has that ID.</response>
+    /// <response code="409">Already enrolled in this category, or the category is full.</response>
+    [ProducesResponseType<EnrolmentResponse>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+
     [HttpPost("categories/{categoryId}/enrol")]
     [SessionAuthorize(Role = "Participant")]
     public async Task<ActionResult<EnrolmentResponse>> Enrol(int categoryId)
@@ -61,6 +83,20 @@ public class EnrolmentsController : ControllerBase
         }
     }
 
+
+    /// <summary>
+    /// Lists the logged-in Participant's own enrolments.
+    /// </summary>
+    /// <remarks>
+    /// Participant only. Ordered by event date.
+    /// </remarks>
+    /// <response code="200">The Participant's enrolments, empty if none.</response>
+    /// <response code="401">Not logged in.</response>
+    /// <response code="403">The user is not a Participant.</response>
+    [ProducesResponseType<List<EnrolmentResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+
     [HttpGet("users/enrolments")]
     [SessionAuthorize(Role = "Participant")]
     public async Task<ActionResult<List<EnrolmentResponse>>> GetMine()
@@ -74,6 +110,22 @@ public class EnrolmentsController : ControllerBase
 
         return Ok(enrolments.Select(ToResponse).ToList());
     }
+
+    /// <summary>
+    /// Lists everyone enrolled in a category.
+    /// </summary>
+    /// <remarks>
+    /// Organiser only, and only for events they own.
+    /// </remarks>
+    /// <param name="categoryId">The category's ID.</param>
+    /// <response code="200">The enrolments, ordered by bib number, empty if none.</response>
+    /// <response code="401">Not logged in.</response>
+    /// <response code="403">The user is not an Organiser, or the event belongs to another Organiser.</response>
+    /// <response code="404">No category has that ID.</response>
+    [ProducesResponseType<List<EnrolmentResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
 
     [HttpGet("categories/{categoryId}/enrolments")]
     [SessionAuthorize(Role = "Organiser")]
@@ -93,6 +145,25 @@ public class EnrolmentsController : ControllerBase
 
         return Ok(enrolments.Select(ToResponse).ToList());
     }
+
+
+    /// <summary>
+    /// Cancels the logged-in Participant's own enrolment.
+    /// </summary>
+    /// <remarks>
+    /// Participant only. An enrolment that already has a result can't be cancelled.
+    /// </remarks>
+    /// <param name="id">The enrolment's ID.</param>
+    /// <response code="200">Enrolment cancelled.</response>
+    /// <response code="401">Not logged in.</response>
+    /// <response code="403">The user is not a Participant, or the enrolment belongs to someone else.</response>
+    /// <response code="404">No enrolment has that ID.</response>
+    /// <response code="409">A result has already been recorded for this enrolment.</response>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
 
     [HttpDelete("enrolments/{id}")]
     [SessionAuthorize(Role = "Participant")]
