@@ -63,6 +63,29 @@ public class EventsController : ControllerBase
         return StatusCode(StatusCodes.Status201Created, ToResponse(ev));
     }
 
+    [HttpPut("{id}")]
+    [SessionAuthorize(Role = "Organiser")]
+    public async Task<ActionResult<EventResponse>> Update(int id, EventRequest request)
+    {
+        var ev = await _db.Events.Include(e => e.Organiser)
+            .FirstOrDefaultAsync(e => e.EventID == id);
+
+        if (ev is null) return NotFound("Event not found.");
+
+        // An organiser may only edit their own events
+        if (ev.OrganiserID != HttpContext.Session.GetCurrentUserId())
+            return StatusCode(StatusCodes.Status403Forbidden, "You can only edit your own events.");
+
+        ev.EventName = request.EventName.Trim();
+        ev.EventDate = request.EventDate.Date;
+        ev.Location = request.Location.Trim();
+        ev.Description = request.Description?.Trim();
+        ev.EventType = request.EventType;
+
+        await _db.SaveChangesAsync();
+        return Ok(ToResponse(ev));
+    }
+
     private static EventResponse ToResponse(Event e) => new()
     {
         EventID = e.EventID,
