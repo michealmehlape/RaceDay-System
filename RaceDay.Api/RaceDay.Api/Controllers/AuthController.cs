@@ -32,6 +32,10 @@ public class AuthController : ControllerBase
     /// <response code="400">Validation failed, for example a bad email or a short password.</response>
     /// <response code="403">The organiser access code is missing or wrong.</response>
     /// <response code="409">That email is already registered.</response>
+    [ProducesResponseType<UserResponse>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [HttpPost("register")]
     public async Task<ActionResult<UserResponse>> Register(RegisterRequest request)
     {
@@ -75,6 +79,9 @@ public class AuthController : ControllerBase
     /// <param name="request">Email and password.</param>
     /// <response code="200">Login successful. Returns the user's details.</response>
     /// <response code="401">The email or password is wrong.</response>
+    [ProducesResponseType<UserResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [HttpPost("login")]
     public async Task<ActionResult<UserResponse>> Login(LoginRequest request)
     {
@@ -92,6 +99,15 @@ public class AuthController : ControllerBase
         return Ok(ToResponse(user));
     }
 
+
+    /// <summary>
+    /// Ends the current session.
+    /// </summary>
+    /// <remarks>
+    /// Clears the stored user ID and role, so later requests are treated as not logged in.
+    /// </remarks>
+    /// <response code="200">Logged out.</response>
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpPost("logout")]
     public IActionResult Logout()
     {
