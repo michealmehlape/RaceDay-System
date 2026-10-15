@@ -83,6 +83,23 @@ public class ResultsController : ControllerBase
         return StatusCode(StatusCodes.Status201Created, ToResponse(saved, counts));
     }
 
+    [HttpGet("users/results")]
+    [SessionAuthorize(Role = "Participant")]
+    public async Task<ActionResult<List<ResultResponse>>> GetMine()
+    {
+        var participantId = HttpContext.Session.GetCurrentUserId();
+
+        var results = await WithDetails()
+            .Where(r => r.Enrolment.ParticipantID == participantId)
+            .OrderByDescending(r => r.Enrolment.Category.Event.EventDate)
+            .ToListAsync();
+
+        var counts = await FinisherCounts(results.Select(r => r.Enrolment.CategoryID).Distinct().ToList());
+        return Ok(results.Select(r => ToResponse(r, counts)).ToList());
+    }
+
+
+
     // Loads everything the response needs
     private IQueryable<Result> WithDetails() => _db.Results
         .Include(r => r.Enrolment.Participant)
