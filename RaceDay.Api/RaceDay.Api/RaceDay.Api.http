@@ -23,3 +23,6 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 { "email": "runner@test.com", "password": "Password123" }
+
+### Profile without logging in (expect 401)
+GET {{host}}/api/users/profile
