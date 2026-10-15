@@ -1,42 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RaceDay.Api.Data;
-using RaceDay.Api.DTOs;
-using RaceDay.Api.Models;
-using RaceDay.Api.Security;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace RaceDay.Api.Controllers;
+namespace RaceDay.Api.DTOs;
 
-[ApiController]
-[Route("api")]
-public class CategoriesController : ControllerBase
+public class CategoryRequest
 {
-    private readonly RaceDayDbContext _db;
+    [Required, StringLength(100)]
+    public string CategoryName { get; set; } = string.Empty;
 
-    public CategoriesController(RaceDayDbContext db) => _db = db;
+    // decimal(5,2) in the database, so the maximum is 999.99
+    [Range(typeof(decimal), "0.01", "999.99")]
+    public decimal DistanceKM { get; set; }
 
-    // Public: anyone can see the categories for an event
-    [HttpGet("events/{eventId}/categories")]
-    public async Task<ActionResult<List<CategoryResponse>>> GetForEvent(int eventId)
-    {
-        if (!await _db.Events.AnyAsync(e => e.EventID == eventId))
-            return NotFound("Event not found.");
+    [Range(1, 100000)]
+    public int MaxParticipants { get; set; }
 
-        var categories = await _db.Categories
-            .Where(c => c.EventID == eventId)
-            .OrderBy(c => c.DistanceKM)
-            .ToListAsync();
+    // decimal(8,2) in the database
+    [Range(typeof(decimal), "0", "999999.99")]
+    public decimal EntryFee { get; set; }
+}
 
-        return Ok(categories.Select(ToResponse).ToList());
-    }
-
-    private static CategoryResponse ToResponse(Category c) => new()
-    {
-        CategoryID = c.CategoryID,
-        EventID = c.EventID,
-        CategoryName = c.CategoryName,
-        DistanceKM = c.DistanceKM,
-        MaxParticipants = c.MaxParticipants,
-        EntryFee = c.EntryFee
-    };
+public class CategoryResponse
+{
+    public int CategoryID { get; set; }
+    public int EventID { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
+    public decimal DistanceKM { get; set; }
+    public int MaxParticipants { get; set; }
+    public decimal EntryFee { get; set; }
 }
