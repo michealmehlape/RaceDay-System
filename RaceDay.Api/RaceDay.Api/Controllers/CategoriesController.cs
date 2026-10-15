@@ -55,6 +55,26 @@ public class CategoriesController : ControllerBase
         return StatusCode(StatusCodes.Status201Created, ToResponse(category));
     }
 
+    [HttpDelete("categories/{id}")]
+    [SessionAuthorize(Role = "Organiser")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var category = await _db.Categories.Include(c => c.Event)
+            .FirstOrDefaultAsync(c => c.CategoryID == id);
+
+        if (category is null) return NotFound("Category not found.");
+
+        if (category.Event.OrganiserID != HttpContext.Session.GetCurrentUserId())
+            return StatusCode(StatusCodes.Status403Forbidden, "You can only delete categories on your own events.");
+
+        if (await _db.Enrolments.AnyAsync(e => e.CategoryID == id))
+            return Conflict("This category has enrolments and can't be deleted.");
+
+        _db.Categories.Remove(category);
+        await _db.SaveChangesAsync();
+        return Ok("Category deleted.");
+    }
+
 
     private static CategoryResponse ToResponse(Category c) => new()
     {
