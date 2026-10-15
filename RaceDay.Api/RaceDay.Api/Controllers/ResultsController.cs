@@ -15,32 +15,28 @@ public class ResultsController : ControllerBase
 
     public ResultsController(RaceDayDbContext db) => _db = db;
 
-    // Public: the leaderboard for a category, finishers first by position
-    [HttpGet("categories/{categoryId}/results")]
-    public async Task<ActionResult<List<ResultResponse>>> GetForCategory(int categoryId)
-    {
-        if (!await _db.Categories.AnyAsync(c => c.CategoryID == categoryId))
-            return NotFound("Category not found.");
-
-        var results = await WithDetails()
-            .Where(r => r.Enrolment.CategoryID == categoryId)
-            .OrderBy(r => r.Position == null)
-            .ThenBy(r => r.Position)
-            .ToListAsync();
-
-        var counts = await FinisherCounts(new[] { categoryId });
-        return Ok(results.Select(r => ToResponse(r, counts)).ToList());
-    }
-
-    [HttpGet("results/{id}")]
-    public async Task<ActionResult<ResultResponse>> GetById(int id)
-    {
-        var result = await WithDetails().FirstOrDefaultAsync(r => r.ResultID == id);
-        if (result is null) return NotFound("Result not found.");
-
-        var counts = await FinisherCounts(new[] { result.Enrolment.CategoryID });
-        return Ok(ToResponse(result, counts));
-    }
+    /// <summary>
+    /// Records the result for an enrolment.
+    /// </summary>
+    /// <remarks>
+    /// Organiser only, and only for events they own. A Finished result needs a finish time and a position.
+    /// DNF (did not finish) and DNS (did not start) don't. Each enrolment can have one result,
+    /// and no two results in a category can share a position.
+    /// </remarks>
+    /// <param name="enrolmentId">The enrolment's ID.</param>
+    /// <param name="request">Finish time (for example 00:52:14), position, and status (Finished, DNF or DNS).</param>
+    /// <response code="201">Result recorded.</response>
+    /// <response code="400">Validation failed, for example a Finished result with no time.</response>
+    /// <response code="401">Not logged in.</response>
+    /// <response code="403">The user is not an Organiser, or the event belongs to another Organiser.</response>
+    /// <response code="404">No enrolment has that ID.</response>
+    /// <response code="409">This enrolment already has a result, or the position is taken.</response>
+    [ProducesResponseType<ResultResponse>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
 
     [HttpPost("enrolments/{enrolmentId}/results")]
     [SessionAuthorize(Role = "Organiser")]
@@ -82,6 +78,73 @@ public class ResultsController : ControllerBase
         var counts = await FinisherCounts(new[] { saved.Enrolment.CategoryID });
         return StatusCode(StatusCodes.Status201Created, ToResponse(saved, counts));
     }
+
+    // Public: the leaderboard for a category, finishers first by position
+
+    /// <summary>
+    /// Returns the results leaderboard for a category.
+    /// </summary>
+    /// <remarks>
+    /// Open to everyone. Ordered by finishing position, with results that have no position last.
+    /// </remarks>
+    /// <param name="categoryId">The category's ID.</param>
+    /// <response code="200">The results, empty if none are recorded yet.</response>
+    /// <response code="404">No category has that ID.</response>
+    [ProducesResponseType<List<ResultResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+
+
+    [HttpGet("categories/{categoryId}/results")]
+    public async Task<ActionResult<List<ResultResponse>>> GetForCategory(int categoryId)
+    {
+        if (!await _db.Categories.AnyAsync(c => c.CategoryID == categoryId))
+            return NotFound("Category not found.");
+
+        var results = await WithDetails()
+            .Where(r => r.Enrolment.CategoryID == categoryId)
+            .OrderBy(r => r.Position == null)
+            .ThenBy(r => r.Position)
+            .ToListAsync();
+
+        var counts = await FinisherCounts(new[] { categoryId });
+        return Ok(results.Select(r => ToResponse(r, counts)).ToList());
+    }
+
+    /// <summary>
+    /// Returns a single result.
+    /// </summary>
+    /// <remarks>
+    /// Open to everyone.
+    /// </remarks>
+    /// <param name="id">The result's ID.</param>
+    /// <response code="200">The result.</response>
+    /// <response code="404">No result has that ID.</response>
+    [ProducesResponseType<ResultResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+
+    [HttpGet("results/{id}")]
+    public async Task<ActionResult<ResultResponse>> GetById(int id)
+    {
+        var result = await WithDetails().FirstOrDefaultAsync(r => r.ResultID == id);
+        if (result is null) return NotFound("Result not found.");
+
+        var counts = await FinisherCounts(new[] { result.Enrolment.CategoryID });
+        return Ok(ToResponse(result, counts));
+    }
+
+    /// <summary>
+    /// Returns the logged-in Participant's own race history.
+    /// </summary>
+    /// <remarks>
+    /// Participant only. Most recent events first. Each result includes the number of finishers
+    /// in the category, so a position can be shown as "5th of 312".
+    /// </remarks>
+    /// <response code="200">The Participant's results, empty if none.</response>
+    /// <response code="401">Not logged in.</response>
+    /// <response code="403">The user is not a Participant.</response>
+    [ProducesResponseType<List<ResultResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
 
     [HttpGet("users/results")]
     [SessionAuthorize(Role = "Participant")]
