@@ -55,6 +55,33 @@ public class CategoriesController : ControllerBase
         return StatusCode(StatusCodes.Status201Created, ToResponse(category));
     }
 
+    [HttpPut("categories/{id}")]
+    [SessionAuthorize(Role = "Organiser")]
+    public async Task<ActionResult<CategoryResponse>> Update(int id, CategoryRequest request)
+    {
+        var category = await _db.Categories.Include(c => c.Event)
+            .FirstOrDefaultAsync(c => c.CategoryID == id);
+
+        if (category is null) return NotFound("Category not found.");
+
+        // Ownership comes from the category's event
+        if (category.Event.OrganiserID != HttpContext.Session.GetCurrentUserId())
+            return StatusCode(StatusCodes.Status403Forbidden, "You can only edit categories on your own events.");
+
+        // Don't allow shrinking below the number of people already enrolled
+        var enrolled = await _db.Enrolments.CountAsync(e => e.CategoryID == id);
+        if (request.MaxParticipants < enrolled)
+            return Conflict($"{enrolled} participants are already enrolled, so the limit can't go below that.");
+
+        category.CategoryName = request.CategoryName.Trim();
+        category.DistanceKM = request.DistanceKM;
+        category.MaxParticipants = request.MaxParticipants;
+        category.EntryFee = request.EntryFee;
+
+        await _db.SaveChangesAsync();
+        return Ok(ToResponse(category));
+    }
+
     [HttpDelete("categories/{id}")]
     [SessionAuthorize(Role = "Organiser")]
     public async Task<IActionResult> Delete(int id)

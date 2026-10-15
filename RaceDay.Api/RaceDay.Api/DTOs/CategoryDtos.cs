@@ -8,14 +8,14 @@ public class CategoryRequest
     public string CategoryName { get; set; } = string.Empty;
 
     // decimal(5,2) in the database, so the maximum is 999.99
-    [Range(typeof(decimal), "0.01", "999.99")]
+    [Range(0.01, 999.99)]
     public decimal DistanceKM { get; set; }
 
     [Range(1, 100000)]
     public int MaxParticipants { get; set; }
 
     // decimal(8,2) in the database
-    [Range(typeof(decimal), "0", "999999.99")]
+    [Range(0, 999999.99)]
     public decimal EntryFee { get; set; }
 }
 
