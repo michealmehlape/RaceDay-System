@@ -94,6 +94,24 @@ public class EnrolmentsController : ControllerBase
         return Ok(enrolments.Select(ToResponse).ToList());
     }
 
+    [HttpDelete("enrolments/{id}")]
+    [SessionAuthorize(Role = "Participant")]
+    public async Task<IActionResult> Cancel(int id)
+    {
+        var enrolment = await _db.Enrolments.FindAsync(id);
+        if (enrolment is null) return NotFound("Enrolment not found.");
+
+        if (enrolment.ParticipantID != HttpContext.Session.GetCurrentUserId())
+            return StatusCode(StatusCodes.Status403Forbidden, "You can only cancel your own enrolments.");
+
+        if (await _db.Results.AnyAsync(r => r.EnrolmentID == id))
+            return Conflict("A result has already been recorded for this enrolment.");
+
+        _db.Enrolments.Remove(enrolment);
+        await _db.SaveChangesAsync();
+        return Ok("Enrolment cancelled.");
+    }
+
     // Loads everything the response needs
     private IQueryable<Enrolment> WithDetails() => _db.Enrolments
         .Include(e => e.Participant)
