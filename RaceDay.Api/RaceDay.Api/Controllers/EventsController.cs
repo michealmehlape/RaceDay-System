@@ -40,6 +40,29 @@ public class EventsController : ControllerBase
         return Ok(ToResponse(ev));
     }
 
+    [HttpPost]
+    [SessionAuthorize(Role = "Organiser")]
+    public async Task<ActionResult<EventResponse>> Create(EventRequest request)
+    {
+        var organiserId = HttpContext.Session.GetCurrentUserId();
+
+        var ev = new Event
+        {
+            EventName = request.EventName.Trim(),
+            EventDate = request.EventDate.Date,
+            Location = request.Location.Trim(),
+            Description = request.Description?.Trim(),
+            EventType = request.EventType,
+            OrganiserID = organiserId     // from the session, never from the request
+        };
+
+        _db.Events.Add(ev);
+        await _db.SaveChangesAsync();
+
+        await _db.Entry(ev).Reference(e => e.Organiser).LoadAsync();
+        return StatusCode(StatusCodes.Status201Created, ToResponse(ev));
+    }
+
     private static EventResponse ToResponse(Event e) => new()
     {
         EventID = e.EventID,
