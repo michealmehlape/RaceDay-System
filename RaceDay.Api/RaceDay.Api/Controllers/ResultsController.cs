@@ -42,6 +42,47 @@ public class ResultsController : ControllerBase
         return Ok(ToResponse(result, counts));
     }
 
+    [HttpPost("enrolments/{enrolmentId}/results")]
+    [SessionAuthorize(Role = "Organiser")]
+    public async Task<ActionResult<ResultResponse>> Create(int enrolmentId, ResultRequest request)
+    {
+        var enrolment = await _db.Enrolments
+            .Include(e => e.Category.Event)
+            .FirstOrDefaultAsync(e => e.EnrolmentID == enrolmentId);
+        if (enrolment is null) return NotFound("Enrolment not found.");
+
+        if (enrolment.Category.Event.OrganiserID != HttpContext.Session.GetCurrentUserId())
+            return StatusCode(StatusCodes.Status403Forbidden, "You can only record results for your own events.");
+
+        if (await _db.Results.AnyAsync(r => r.EnrolmentID == enrolmentId))
+            return Conflict("A result has already been recorded for this enrolment.");
+
+        // A finisher needs a time and a position; DNF and DNS don't
+        if (request.Status == "Finished" && (request.FinishTime is null || request.Position is null))
+            return BadRequest("A finished result needs both a finish time and a position.");
+
+        // Two people can't share a position within one category
+        if (request.Position is not null &&
+            await _db.Results.AnyAsync(r => r.Enrolment.CategoryID == enrolment.CategoryID
+                                            && r.Position == request.Position))
+            return Conflict("That position is already taken in this category.");
+
+        var result = new Result
+        {
+            EnrolmentID = enrolmentId,
+            FinishTime = request.FinishTime,
+            Position = request.Position,
+            Status = request.Status
+        };
+
+        _db.Results.Add(result);
+        await _db.SaveChangesAsync();
+
+        var saved = await WithDetails().FirstAsync(r => r.ResultID == result.ResultID);
+        var counts = await FinisherCounts(new[] { saved.Enrolment.CategoryID });
+        return StatusCode(StatusCodes.Status201Created, ToResponse(saved, counts));
+    }
+
     // Loads everything the response needs
     private IQueryable<Result> WithDetails() => _db.Results
         .Include(r => r.Enrolment.Participant)
