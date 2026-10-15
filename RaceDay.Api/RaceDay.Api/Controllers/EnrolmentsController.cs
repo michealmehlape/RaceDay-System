@@ -61,6 +61,20 @@ public class EnrolmentsController : ControllerBase
         }
     }
 
+    [HttpGet("users/enrolments")]
+    [SessionAuthorize(Role = "Participant")]
+    public async Task<ActionResult<List<EnrolmentResponse>>> GetMine()
+    {
+        var participantId = HttpContext.Session.GetCurrentUserId();
+
+        var enrolments = await WithDetails()
+            .Where(e => e.ParticipantID == participantId)
+            .OrderBy(e => e.Category.Event.EventDate)
+            .ToListAsync();
+
+        return Ok(enrolments.Select(ToResponse).ToList());
+    }
+
     // Loads everything the response needs
     private IQueryable<Enrolment> WithDetails() => _db.Enrolments
         .Include(e => e.Participant)
