@@ -75,6 +75,25 @@ public class EnrolmentsController : ControllerBase
         return Ok(enrolments.Select(ToResponse).ToList());
     }
 
+    [HttpGet("categories/{categoryId}/enrolments")]
+    [SessionAuthorize(Role = "Organiser")]
+    public async Task<ActionResult<List<EnrolmentResponse>>> GetForCategory(int categoryId)
+    {
+        var category = await _db.Categories.Include(c => c.Event)
+            .FirstOrDefaultAsync(c => c.CategoryID == categoryId);
+        if (category is null) return NotFound("Category not found.");
+
+        if (category.Event.OrganiserID != HttpContext.Session.GetCurrentUserId())
+            return StatusCode(StatusCodes.Status403Forbidden, "You can only view enrolments for your own events.");
+
+        var enrolments = await WithDetails()
+            .Where(e => e.CategoryID == categoryId)
+            .OrderBy(e => e.BibNumber)
+            .ToListAsync();
+
+        return Ok(enrolments.Select(ToResponse).ToList());
+    }
+
     // Loads everything the response needs
     private IQueryable<Enrolment> WithDetails() => _db.Enrolments
         .Include(e => e.Participant)
