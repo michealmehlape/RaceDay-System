@@ -20,6 +20,18 @@ public class AuthController : ControllerBase
         _config = config;
     }
 
+
+    /// <summary>
+    /// Creates a new Participant or Organiser account.
+    /// </summary>
+    /// <remarks>
+    /// Organisers must also supply the organiser access code. The password is hashed before it is stored.
+    /// </remarks>
+    /// <param name="request">Full name, email, password (8+ characters), role, and the access code if registering as an Organiser.</param>
+    /// <response code="201">Account created. Returns the user without the password.</response>
+    /// <response code="400">Validation failed, for example a bad email or a short password.</response>
+    /// <response code="403">The organiser access code is missing or wrong.</response>
+    /// <response code="409">That email is already registered.</response>
     [HttpPost("register")]
     public async Task<ActionResult<UserResponse>> Register(RegisterRequest request)
     {
@@ -53,6 +65,16 @@ public class AuthController : ControllerBase
         return StatusCode(StatusCodes.Status201Created, ToResponse(user));
     }
 
+
+    /// <summary>
+    /// Logs a user in and starts a server-side session.
+    /// </summary>
+    /// <remarks>
+    /// The session stores the user's ID and role and is sent back as a cookie on later requests.
+    /// </remarks>
+    /// <param name="request">Email and password.</param>
+    /// <response code="200">Login successful. Returns the user's details.</response>
+    /// <response code="401">The email or password is wrong.</response>
     [HttpPost("login")]
     public async Task<ActionResult<UserResponse>> Login(LoginRequest request)
     {
