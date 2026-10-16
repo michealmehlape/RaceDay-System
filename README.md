@@ -1,4 +1,4 @@
-# RaceDay
+## Part 1 - Planning and database design
 
 RaceDay is a race-event management system that lets **Organisers** create and
 manage running events, and lets **Participants** browse events, enrol in a
