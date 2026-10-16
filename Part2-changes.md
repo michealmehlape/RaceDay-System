@@ -35,3 +35,5 @@
 | `409 Conflict` when cancelling an enrolment that already has a result | Keeps results consistent. |
 | Result statuses are `Finished`, `DNF` and `DNS`; a Finished result needs a time and a position; positions are unique per category | Makes the data meaningful. |
 | `totalFinishers` is included in result responses | Lets Part 3 show "47th out of 312 finishers". |
+
+Part 2 video walkthrough: https://youtu.be/vr5e4cKd5dM

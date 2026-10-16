@@ -117,7 +117,7 @@ See [docs/part2-changes.md](docs/part2-changes.md) for every deliberate change a
 
 ### Video
 
-PLACEHOLDER: 
+https://youtu.be/vr5e4cKd5dM
 
 ### AI use disclosure
 
