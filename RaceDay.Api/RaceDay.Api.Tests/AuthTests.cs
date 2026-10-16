@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using Xunit;
-using System.Net.Http.Json;
 
 namespace RaceDay.Api.Tests;
 
