@@ -121,6 +121,6 @@ https://youtu.be/vr5e4cKd5dM
 
 ### AI use disclosure
 
-I used an AI assistant (Claude) for guidance while building Part 2: explanations of the concepts,
+I used an AI assistant (Claude) for help while building Part 2: explanations of the concepts,
 debugging and test cases.
 
