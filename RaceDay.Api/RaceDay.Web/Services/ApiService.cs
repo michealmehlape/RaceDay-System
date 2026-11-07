@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using static RaceDay.Web.ViewModels.ResultDto;
+using System.Net.Http.Headers;
 
 namespace RaceDay.Web.Services;
 
@@ -175,6 +176,28 @@ public class ApiService
         return SendAsync<string>(HttpMethod.Post, "api/enrolments/" + enrolmentId + "/results", body);
     }
 
+    public Task<ApiResult<UserDto>> UploadProfilePictureAsync(IFormFile file)
+    {
+        return SendAsync<UserDto>(HttpMethod.Post, "api/users/profile/picture", BuildFileContent(file));
+    }
+
+    public Task<ApiResult<EventDto>> UploadEventBannerAsync(int eventId, IFormFile file)
+    {
+        return SendAsync<EventDto>(HttpMethod.Post, "api/events/" + eventId + "/banner", BuildFileContent(file));
+    }
+
+    // Packs a chosen file into the form the API expects (the field must be called "File")
+    private static MultipartFormDataContent BuildFileContent(IFormFile file)
+    {
+        var content = new MultipartFormDataContent();
+
+        var fileContent = new StreamContent(file.OpenReadStream());
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+        content.Add(fileContent, "File", file.FileName);
+        return content;
+    }
+
     // Builds the JSON the API expects when creating or updating an event
     private static object BuildEventBody(EventFormViewModel model)
     {
@@ -200,8 +223,15 @@ public class ApiService
 
             // Send this user's own API session cookie, if they have one
             var cookie = Session.GetString(ApiCookieKey);
-            if (!string.IsNullOrEmpty(cookie))
-                request.Headers.TryAddWithoutValidation("Cookie", cookie);
+            if (body is HttpContent readyContent)
+            {
+                
+                request.Content = readyContent;
+            }
+            else if (body != null)
+            {
+                request.Content = JsonContent.Create(body);   
+            }
 
             using var response = await _http.SendAsync(request);
             CaptureApiCookie(response);
