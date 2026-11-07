@@ -32,6 +32,9 @@ public class EventFormViewModel
 // The Create page also asks for the event's first category
 public class CreateEventViewModel : EventFormViewModel
 {
+    // Only shown on the Edit page, it is not changed by the main form
+    public string? BannerImageUrl { get; set; }
+
     [Required(ErrorMessage = "Please enter the main distance.")]
     [Range(0.01, 999.99, ErrorMessage = "The distance must be between 0.01 and 999.99 km.")]
     [Display(Name = "Main distance (km)")]

@@ -150,6 +150,7 @@ public class OrganiserController : Controller
         model.EventDate = found.EventDate;
         model.Location = found.Location;
         model.EventType = found.EventType;
+        model.BannerImageUrl = found.BannerImageUrl;
 
         return View(model);
     }
@@ -542,5 +543,34 @@ public class OrganiserController : Controller
         }
 
         return RedirectToAction("Results", new { eventId = eventId });
+    }
+    // Runs when the organiser chooses a banner image for an event
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UploadBanner(int eventId, IFormFile? banner)
+    {
+        if (banner == null || banner.Length == 0)
+        {
+            TempData["Error"] = "Please choose an image first.";
+            return RedirectToAction("Edit", new { id = eventId });
+        }
+
+        var result = await _api.UploadEventBannerAsync(eventId, banner);
+
+        if (result.IsUnauthorized)
+        {
+            return RedirectToAction("SessionExpired", "Account");
+        }
+
+        if (result.Success)
+        {
+            TempData["Success"] = "The banner has been updated.";
+        }
+        else
+        {
+            TempData["Error"] = result.Error;
+        }
+
+        return RedirectToAction("Edit", new { id = eventId });
     }
 }
