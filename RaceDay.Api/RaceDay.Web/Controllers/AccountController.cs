@@ -62,4 +62,11 @@ public class AccountController : Controller
     }
     [HttpGet]
     public IActionResult AccessDenied() => View();
+    // Used when the API says the user's session has ended
+    public IActionResult SessionExpired()
+    {
+        HttpContext.Session.Clear();
+        TempData["Info"] = "Your session has ended. Please log in again.";
+        return RedirectToAction("Login");
+    }
 }

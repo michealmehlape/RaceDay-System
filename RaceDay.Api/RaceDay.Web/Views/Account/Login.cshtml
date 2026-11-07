@@ -11,6 +11,10 @@
         {
             <div class="alert alert-success">@success</div>
         }
+        @if (TempData["Info"] is string info)
+        {
+            <div class="alert alert-info">@info</div>
+        }
 
         <form asp-action="Login" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
