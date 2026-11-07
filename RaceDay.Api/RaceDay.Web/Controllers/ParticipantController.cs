@@ -88,4 +88,60 @@ public class ParticipantController : Controller
 
         return View(model);
     }
+
+    // Shows the profile form filled in with the current details
+    [HttpGet]
+    public async Task<IActionResult> Profile()
+    {
+        var result = await _api.GetProfileAsync();
+
+        if (result.IsUnauthorized)
+        {
+            return RedirectToAction("SessionExpired", "Account");
+        }
+
+        if (!result.Success || result.Data == null)
+        {
+            TempData["Error"] = result.Error;
+            return RedirectToAction("MyEvents");
+        }
+
+        var model = new ProfileViewModel();
+        model.FullName = result.Data.FullName;
+        model.Email = result.Data.Email;
+        model.ProfilePictureUrl = result.Data.ProfilePictureUrl;
+
+        return View(model);
+    }
+
+    // Runs when the profile form is submitted
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Profile(ProfileViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var result = await _api.UpdateProfileAsync(model.FullName, model.Email);
+
+        if (result.IsUnauthorized)
+        {
+            return RedirectToAction("SessionExpired", "Account");
+        }
+
+        if (!result.Success)
+        {
+            // For example: that email already belongs to someone else
+            ModelState.AddModelError(string.Empty, result.Error ?? "We couldn't save your changes. Please try again.");
+            return View(model);
+        }
+
+        // Keep the name in the navigation bar up to date
+        HttpContext.Session.SetString("FullName", model.FullName);
+
+        TempData["Success"] = "Your profile has been updated.";
+        return RedirectToAction("Profile");
+    }
 }

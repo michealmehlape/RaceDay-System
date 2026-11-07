@@ -88,6 +88,22 @@ public class ApiService
         return SendAsync<string>(HttpMethod.Delete, "api/enrolments/" + enrolmentId);
     }
 
+    public Task<ApiResult<UserDto>> GetProfileAsync()
+    {
+        return SendAsync<UserDto>(HttpMethod.Get, "api/users/profile");
+    }
+
+    public Task<ApiResult<UserDto>> UpdateProfileAsync(string fullName, string email)
+    {
+        var body = new
+        {
+            fullName = fullName,
+            email = email
+        };
+
+        return SendAsync<UserDto>(HttpMethod.Put, "api/users/profile", body);
+    }
+
     // ---------- Organiser ----------
 
     public Task<ApiResult<List<OrganiserEventDto>>> GetMyEventsAsync()
