@@ -18,6 +18,8 @@ builder.Services.AddSession(options =>
 var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"]
     ?? throw new InvalidOperationException("ApiSettings:BaseUrl is missing from appsettings.json.");
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddHttpClient<ApiService>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
