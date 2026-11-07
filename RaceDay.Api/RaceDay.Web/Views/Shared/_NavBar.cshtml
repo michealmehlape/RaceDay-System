@@ -31,7 +31,9 @@
 
                 @if (role == "Organiser")
                 {
-                    @* Organiser links go here as we build their pages *@
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Organiser" asp-action="Dashboard">Dashboard</a>
+                    </li>
                 }
             </ul>
 
