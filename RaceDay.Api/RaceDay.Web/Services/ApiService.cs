@@ -123,6 +123,25 @@ public class ApiService
 
         return SendAsync<CategoryDto>(HttpMethod.Post, "api/events/" + eventId + "/categories", body);
     }
+
+    public Task<ApiResult<CategoryDto>> UpdateCategoryAsync(int categoryId, CategoryFormViewModel model)
+    {
+        var body = new
+        {
+            categoryName = model.CategoryName,
+            distanceKM = model.DistanceKM,
+            maxParticipants = model.MaxParticipants,
+            entryFee = model.EntryFee
+        };
+
+        return SendAsync<CategoryDto>(HttpMethod.Put, "api/categories/" + categoryId, body);
+    }
+
+    public Task<ApiResult<string>> DeleteCategoryAsync(int categoryId)
+    {
+        return SendAsync<string>(HttpMethod.Delete, "api/categories/" + categoryId);
+    }
+
     // Builds the JSON the API expects when creating or updating an event
     private static object BuildEventBody(EventFormViewModel model)
     {
