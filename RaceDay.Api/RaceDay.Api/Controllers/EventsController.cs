@@ -4,6 +4,7 @@ using RaceDay.Api.Data;
 using RaceDay.Api.DTOs;
 using RaceDay.Api.Models;
 using RaceDay.Api.Security;
+using RaceDay.Api.Services;
 
 namespace RaceDay.Api.Controllers;
 
@@ -12,8 +13,13 @@ namespace RaceDay.Api.Controllers;
 public class EventsController : ControllerBase
 {
     private readonly RaceDayDbContext _db;
+    private readonly IBlobStorageService _blobs;
 
-    public EventsController(RaceDayDbContext db) => _db = db;
+    public EventsController(RaceDayDbContext db, IBlobStorageService blobs)
+    {
+        _db = db;
+        _blobs = blobs;
+    }
 
 
     /// <summary>
@@ -179,6 +185,65 @@ public class EventsController : ControllerBase
         ev.Location = request.Location.Trim();
         ev.Description = request.Description?.Trim();
         ev.EventType = request.EventType;
+
+        await _db.SaveChangesAsync();
+        return Ok(ToResponse(ev));
+    }
+
+
+    /// <summary>
+    /// Uploads a banner image for an event owned by the logged-in Organiser.
+    /// </summary>
+    /// <remarks>Organiser only. The image is stored in Azure Blob Storage. JPG, PNG or WEBP, up to 5 MB.</remarks>
+    /// <param name="id">The event's ID.</param>
+    /// <param name="file">The image file.</param>
+    /// <response code="200">Banner saved. Returns the event's new details.</response>
+    /// <response code="400">No file, wrong file type, or the file is too big.</response>
+    /// <response code="401">Not logged in.</response>
+    /// <response code="403">The user is not an Organiser, or the event belongs to another Organiser.</response>
+    /// <response code="404">No event has that ID.</response>
+    /// <response code="503">The image storage could not be reached.</response>
+    [ProducesResponseType<EventResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    [HttpPost("{id}/banner")]
+    [SessionAuthorize(Role = "Organiser")]
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<EventResponse>> UploadBanner(int id, [FromForm] IFormFile file)
+    {
+        var ev = await _db.Events.Include(e => e.Organiser)
+            .FirstOrDefaultAsync(e => e.EventID == id);
+
+        if (ev is null) return NotFound("Event not found.");
+
+        // An organiser may only change their own events
+        if (ev.OrganiserID != HttpContext.Session.GetCurrentUserId())
+            return StatusCode(StatusCodes.Status403Forbidden, "You can only edit your own events.");
+
+        // Check the file before uploading it
+        if (file.Length == 0)
+            return BadRequest("Please choose an image to upload.");
+
+        if (file.Length > 5 * 1024 * 1024)
+            return BadRequest("The banner must be 5 MB or smaller.");
+
+        string[] allowedTypes = { "image/jpeg", "image/png", "image/webp" };
+        if (!allowedTypes.Contains(file.ContentType))
+            return BadRequest("Only JPG, PNG or WEBP images are allowed.");
+
+        // Upload to Azure and keep the address it gives back
+        try
+        {
+            ev.BannerImageUrl = await _blobs.UploadImageAsync(file, "banners");
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                "We couldn't save the banner right now. Please try again later.");
+        }
 
         await _db.SaveChangesAsync();
         return Ok(ToResponse(ev));
