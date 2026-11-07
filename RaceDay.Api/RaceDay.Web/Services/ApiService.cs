@@ -1,6 +1,7 @@
-﻿using System.Net.Http.Json;
+﻿using RaceDay.Web.ViewModels;
+using System.Net.Http.Json;
 using System.Text.Json;
-using RaceDay.Web.ViewModels;
+using static RaceDay.Web.ViewModels.ResultDto;
 
 namespace RaceDay.Web.Services;
 
@@ -85,6 +86,13 @@ public class ApiService
     public Task<ApiResult<string>> CancelEnrolmentAsync(int enrolmentId)
     {
         return SendAsync<string>(HttpMethod.Delete, "api/enrolments/" + enrolmentId);
+    }
+
+    // ---------- Organiser ----------
+
+    public Task<ApiResult<List<OrganiserEventDto>>> GetMyEventsAsync()
+    {
+        return SendAsync<List<OrganiserEventDto>>(HttpMethod.Get, "api/events/mine");
     }
 
     // ---------- Core: every API call goes through here ----------

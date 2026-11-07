@@ -97,4 +97,9 @@ public class ResultDto
             return number + ending + " out of " + TotalFinishers;
         }
     }
+    public class OrganiserEventDto : EventDto
+    {
+        public int CategoryCount { get; set; }
+        public int TotalEnrolments { get; set; }
+    }
 }
