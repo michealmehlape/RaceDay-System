@@ -51,6 +51,8 @@ else
                     <td>@item.CategoryCount</td>
                     <td>@item.TotalEnrolments</td>
                     <td>
+
+                        <a asp-action="Enrolments" asp-route-eventId="@item.EventID" class="btn btn-outline-dark btn-sm">Enrolments</a>
                         <a asp-action="Categories" asp-route-eventId="@item.EventID" class="btn btn-outline-dark btn-sm">Categories</a>
                         <a asp-action="Edit" asp-route-id="@item.EventID" class="btn btn-outline-dark btn-sm">Edit</a>
                         <form asp-action="DeleteEvent" method="post" class="d-inline"

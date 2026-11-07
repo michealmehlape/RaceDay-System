@@ -2,6 +2,7 @@
 using RaceDay.Web.Filters;
 using RaceDay.Web.Services;
 using RaceDay.Web.ViewModels;
+using static RaceDay.Web.ViewModels.OrganiserDashboardViewModel;
 
 namespace RaceDay.Web.Controllers;
 
@@ -387,5 +388,60 @@ public class OrganiserController : Controller
         }
 
         return RedirectToAction("Categories", new { eventId = eventId });
+    }
+    // Shows everyone enrolled in one event
+    public async Task<IActionResult> Enrolments(int eventId)
+    {
+        // Find the event in this organiser's own list
+        var eventsResult = await _api.GetMyEventsAsync();
+
+        if (eventsResult.IsUnauthorized)
+        {
+            return RedirectToAction("SessionExpired", "Account");
+        }
+
+        if (!eventsResult.Success || eventsResult.Data == null)
+        {
+            TempData["Error"] = eventsResult.Error;
+            return RedirectToAction("Events");
+        }
+
+        var myEvent = eventsResult.Data.FirstOrDefault(e => e.EventID == eventId);
+
+        if (myEvent == null)
+        {
+            TempData["Error"] = "We couldn't find that event.";
+            return RedirectToAction("Events");
+        }
+
+        var model = new EventEnrolmentsViewModel();
+        model.EventID = myEvent.EventID;
+        model.EventName = myEvent.EventName;
+
+        // Get the event's categories
+        var categoriesResult = await _api.GetCategoriesAsync(eventId);
+
+        if (!categoriesResult.Success || categoriesResult.Data == null)
+        {
+            model.ErrorMessage = categoriesResult.Error;
+            return View(model);
+        }
+
+        // Get the enrolments of each category and add them to one list
+        foreach (var category in categoriesResult.Data)
+        {
+            var enrolmentsResult = await _api.GetCategoryEnrolmentsAsync(category.CategoryID);
+
+            if (enrolmentsResult.Success && enrolmentsResult.Data != null)
+            {
+                model.Enrolments.AddRange(enrolmentsResult.Data);
+            }
+            else
+            {
+                model.ErrorMessage = enrolmentsResult.Error;
+            }
+        }
+
+        return View(model);
     }
 }
