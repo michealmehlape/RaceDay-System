@@ -1,31 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --rd-navy: #0b1f3a;
+    --rd-orange: #ff5a1f;
+    --rd-orange-dark: #e04810;
+    --rd-lime: #b6f23a;
+    --rd-bg: #f4f6fa;
+    --rd-text: #1c2430;
+    --bs-primary: var(--rd-orange);
+    --bs-primary-rgb: 255, 90, 31;
+    --bs-link-color-rgb: 224, 72, 16;
+    --bs-link-hover-color-rgb: 11, 31, 58;
+}
+
 html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    font-size: 15px;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background: var(--rd-bg);
+    color: var(--rd-text);
+    font-family: 'Inter', system-ui, sans-serif;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+h1, h2, h3, h4, .rd-brand {
+    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* Navbar */
+.rd-navbar {
+    background: var(--rd-navy);
+    border-bottom: 4px solid var(--rd-orange);
+}
+
+.rd-brand {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+    .rd-brand span {
+        color: var(--rd-orange);
+    }
+
+.rd-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+}
+
+    .rd-navbar .nav-link:hover {
+        color: var(--rd-lime);
+    }
+
+.role-pill {
+    background: var(--rd-lime);
+    color: var(--rd-navy);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 0.2em 0.7em;
+    border-radius: 999px;
+    text-transform: uppercase;
+}
+
+/* Buttons and form focus */
+.btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--rd-orange);
+    --bs-btn-border-color: var(--rd-orange);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--rd-orange-dark);
+    --bs-btn-hover-border-color: var(--rd-orange-dark);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--rd-orange-dark);
+    --bs-btn-active-border-color: var(--rd-orange-dark);
+    --bs-btn-disabled-bg: var(--rd-orange);
+    --bs-btn-disabled-border-color: var(--rd-orange);
+    font-weight: 600;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--rd-orange);
+    box-shadow: 0 0 0 0.2rem rgba(255, 90, 31, 0.25);
+}
+
+/* Colour-coded statuses (used on enrolment and result pages) */
+.status-badge {
+    display: inline-block;
+    padding: 0.3em 0.8em;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.status-confirmed,
+.status-registered,
+.status-finished {
+    background: #d9f7e3;
+    color: #146c35;
+}
+
+.status-pending {
+    background: #fff0cc;
+    color: #8a5a00;
+}
+
+.status-cancelled,
+.status-dnf,
+.status-dns {
+    background: #fde0e0;
+    color: #9b1c1c;
+}
+
+/* Footer */
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
 }
