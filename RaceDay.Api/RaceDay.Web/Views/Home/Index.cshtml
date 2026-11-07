@@ -1,8 +1,51 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model RaceDay.Web.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Upcoming events";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>Upcoming events</h1>
+
+<!-- Filter form: sends the chosen type back to this same page -->
+<form method="get" asp-action="Index" class="row g-2 mb-4">
+    <div class="col-auto">
+        <select name="eventType" class="form-select">
+            <option value="">All types</option>
+            <option value="Run" selected="@(Model.SelectedType == "Run")">Run</option>
+            <option value="Walk" selected="@(Model.SelectedType == "Walk")">Walk</option>
+            <option value="Cycle" selected="@(Model.SelectedType == "Cycle")">Cycle</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+</form>
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-warning">@Model.ErrorMessage</div>
+}
+else if (Model.Events.Count == 0)
+{
+    <p>There are no upcoming events right now. Check back soon!</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Model.Events)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <span class="badge bg-dark">@item.EventType</span>
+                        <h5 class="card-title mt-2">@item.EventName</h5>
+                        <p class="card-text">@item.EventDate.ToString("dd MMM yyyy") - @item.Location</p>
+                        <p class="card-text">@item.Description</p>
+                    </div>
+                    <div class="card-footer text-muted">
+                        Organised by @item.OrganiserName
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
