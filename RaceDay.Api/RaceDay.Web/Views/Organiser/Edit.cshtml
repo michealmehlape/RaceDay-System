@@ -6,10 +6,20 @@
 <div class="row justify-content-center">
     <div class="col-md-8">
         <h1>Edit event</h1>
+                @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-warning">@TempData["Error"]</div>
+        }
 
         <form asp-action="Edit" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
             <input type="hidden" asp-for="EventID" />
+            <input type="hidden" asp-for="BannerImageUrl" />
 
             <partial name="_EventFields" model="Model" />
 
@@ -17,6 +27,28 @@
 
             <button type="submit" class="btn btn-primary">Save changes</button>
             <a asp-action="Events" class="btn btn-outline-dark">Cancel</a>
+        </form>
+
+        <hr class="my-4" />
+
+        <h2 class="h4">Event banner</h2>
+
+        @if (string.IsNullOrEmpty(Model.BannerImageUrl))
+        {
+            <p class="text-muted">This event has no banner yet.</p>
+        }
+        else
+        {
+            <img src="@Model.BannerImageUrl" alt="Event banner" class="event-banner mb-3" />
+        }
+
+        <form asp-action="UploadBanner" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="eventId" value="@Model.EventID" />
+            <div class="input-group">
+                <input type="file" name="banner" accept="image/png,image/jpeg,image/webp" class="form-control" />
+                <button type="submit" class="btn btn-outline-dark">Upload banner</button>
+            </div>
+            <div class="form-text">JPG, PNG or WEBP, up to 5 MB.</div>
         </form>
     </div>
 </div>
