@@ -147,6 +147,18 @@ public class ApiService
         return SendAsync<List<EnrolmentDto>>(HttpMethod.Get, "api/categories/" + categoryId + "/enrolments");
     }
 
+    public Task<ApiResult<string>> RecordResultAsync(int enrolmentId, string? finishTime, int? position, string status)
+    {
+        var body = new
+        {
+            finishTime = finishTime,
+            position = position,
+            status = status
+        };
+
+        return SendAsync<string>(HttpMethod.Post, "api/enrolments/" + enrolmentId + "/results", body);
+    }
+
     // Builds the JSON the API expects when creating or updating an event
     private static object BuildEventBody(EventFormViewModel model)
     {
