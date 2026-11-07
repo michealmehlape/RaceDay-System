@@ -1,0 +1,50 @@
+﻿@model RaceDay.Web.ViewModels.CategoryFormViewModel
+@{
+    bool isEditing = Model.CategoryID != 0;
+    ViewData["Title"] = isEditing ? "Edit category" : "Add category";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h1>@ViewData["Title"]</h1>
+        <p class="text-muted">@Model.EventName</p>
+
+        <form asp-action="@(isEditing ? "EditCategory" : "AddCategory")" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+            <input type="hidden" asp-for="CategoryID" />
+            <input type="hidden" asp-for="EventID" />
+            <input type="hidden" asp-for="EventName" />
+
+            <div class="mb-3">
+                <label asp-for="CategoryName" class="form-label"></label>
+                <input asp-for="CategoryName" class="form-control" placeholder="e.g. 10 km" />
+                <span asp-validation-for="CategoryName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DistanceKM" class="form-label"></label>
+                <input asp-for="DistanceKM" type="number" step="any" class="form-control" />
+                <span asp-validation-for="DistanceKM" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MaxParticipants" class="form-label"></label>
+                <input asp-for="MaxParticipants" type="number" class="form-control" />
+                <span asp-validation-for="MaxParticipants" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="EntryFee" class="form-label"></label>
+                <input asp-for="EntryFee" type="number" step="any" class="form-control" />
+                <span asp-validation-for="EntryFee" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save category</button>
+            <a asp-action="Categories" asp-route-eventId="@Model.EventID" class="btn btn-outline-dark">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
