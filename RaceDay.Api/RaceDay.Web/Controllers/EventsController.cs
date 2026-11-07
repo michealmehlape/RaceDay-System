@@ -52,7 +52,7 @@ public class EventsController : Controller
 
         if (result.Success && result.Data != null)
         {
-            TempData["Success"] = "You are in! Your bib number is " + result.Data.BibNumber + ".";
+            TempData["Success"] = "You have been enrolled! Your bib number is " + result.Data.BibNumber + ".";
         }
         else
         {

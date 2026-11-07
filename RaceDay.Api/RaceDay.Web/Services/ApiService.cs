@@ -70,6 +70,23 @@ public class ApiService
         return SendAsync<EnrolmentDto>(HttpMethod.Post, "api/categories/" + categoryId + "/enrol");
     }
 
+    // ---------- Participant ----------
+
+    public Task<ApiResult<List<EnrolmentDto>>> GetMyEnrolmentsAsync()
+    {
+        return SendAsync<List<EnrolmentDto>>(HttpMethod.Get, "api/users/enrolments");
+    }
+
+    public Task<ApiResult<List<ResultDto>>> GetMyResultsAsync()
+    {
+        return SendAsync<List<ResultDto>>(HttpMethod.Get, "api/users/results");
+    }
+
+    public Task<ApiResult<string>> CancelEnrolmentAsync(int enrolmentId)
+    {
+        return SendAsync<string>(HttpMethod.Delete, "api/enrolments/" + enrolmentId);
+    }
+
     // ---------- Core: every API call goes through here ----------
 
     private async Task<ApiResult<T>> SendAsync<T>(HttpMethod method, string url, object? body = null)
