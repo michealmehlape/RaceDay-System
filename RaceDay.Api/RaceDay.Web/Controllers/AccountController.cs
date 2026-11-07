@@ -60,4 +60,6 @@ public class AccountController : Controller
         HttpContext.Session.Clear();
         return RedirectToAction(nameof(Login));
     }
+    [HttpGet]
+    public IActionResult AccessDenied() => View();
 }
