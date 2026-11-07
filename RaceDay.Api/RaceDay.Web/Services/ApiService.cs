@@ -40,6 +40,21 @@ public class ApiService
     public Task<ApiResult<string>> LogoutAsync() =>
         SendAsync<string>(HttpMethod.Post, "api/auth/logout");
 
+    // ---------- Events ----------
+
+    public Task<ApiResult<List<EventDto>>> GetEventsAsync(string? eventType)
+    {
+        var url = "api/events";
+
+        // Only add the filter to the address if the user picked one
+        if (!string.IsNullOrWhiteSpace(eventType))
+        {
+            url = url + "?eventType=" + Uri.EscapeDataString(eventType);
+        }
+
+        return SendAsync<List<EventDto>>(HttpMethod.Get, url);
+    }
+
     // ---------- Core: every API call goes through here ----------
 
     private async Task<ApiResult<T>> SendAsync<T>(HttpMethod method, string url, object? body = null)
