@@ -28,6 +28,14 @@
                      style="width:120px;height:120px;object-fit:cover;border-radius:50%;" />
             }
         </div>
+                <form asp-action="UploadPicture" method="post" enctype="multipart/form-data" class="mb-4">
+            <label class="form-label">Change profile picture</label>
+            <div class="input-group">
+                <input type="file" name="picture" accept="image/png,image/jpeg,image/webp" class="form-control" />
+                <button type="submit" class="btn btn-outline-dark">Upload</button>
+            </div>
+            <div class="form-text">JPG, PNG or WEBP, up to 2 MB.</div>
+        </form>
 
         <form asp-action="Profile" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>

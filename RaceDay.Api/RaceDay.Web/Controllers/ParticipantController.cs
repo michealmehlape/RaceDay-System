@@ -144,4 +144,35 @@ public class ParticipantController : Controller
         TempData["Success"] = "Your profile has been updated.";
         return RedirectToAction("Profile");
     }
+
+    // Runs when the participant chooses a new profile picture
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UploadPicture(IFormFile? picture)
+    {
+        if (picture == null || picture.Length == 0)
+        {
+            TempData["Error"] = "Please choose a picture first.";
+            return RedirectToAction("Profile");
+        }
+
+        var result = await _api.UploadProfilePictureAsync(picture);
+
+        if (result.IsUnauthorized)
+        {
+            return RedirectToAction("SessionExpired", "Account");
+        }
+
+        if (result.Success)
+        {
+            TempData["Success"] = "Your profile picture has been updated.";
+        }
+        else
+        {
+            TempData["Error"] = result.Error;
+        }
+
+        return RedirectToAction("Profile");
+    }
+
 }
