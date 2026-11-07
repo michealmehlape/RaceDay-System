@@ -30,6 +30,12 @@ public class AccountController : Controller
         HttpContext.Session.SetString("Role", result.Data.Role);
         HttpContext.Session.SetString("FullName", result.Data.FullName);
 
+        // Organisers start on their dashboard, Participants on the home page
+        if (result.Data.Role == "Organiser")
+        {
+            return RedirectToAction("Dashboard", "Organiser");
+        }
+
         return RedirectToAction("Index", "Home");
     }
 
