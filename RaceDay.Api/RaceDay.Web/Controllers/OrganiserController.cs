@@ -204,4 +204,188 @@ public class OrganiserController : Controller
 
         return RedirectToAction("Events");
     }
+
+    // Looks up one of THIS organiser's events (so other people's events are never shown)
+    private async Task<EventDto?> FindMyEventAsync(int eventId)
+    {
+        var result = await _api.GetMyEventsAsync();
+
+        if (!result.Success || result.Data == null)
+        {
+            return null;
+        }
+
+        return result.Data.FirstOrDefault(e => e.EventID == eventId);
+    }
+
+    // Lists the categories of one event
+    [HttpGet]
+    public async Task<IActionResult> Categories(int eventId)
+    {
+        var myEvent = await FindMyEventAsync(eventId);
+
+        if (myEvent == null)
+        {
+            TempData["Error"] = "We couldn't find that event.";
+            return RedirectToAction("Events");
+        }
+
+        var model = new CategoriesViewModel();
+        model.EventID = myEvent.EventID;
+        model.EventName = myEvent.EventName;
+
+        var result = await _api.GetCategoriesAsync(eventId);
+
+        if (result.IsUnauthorized)
+        {
+            return RedirectToAction("SessionExpired", "Account");
+        }
+
+        if (result.Success && result.Data != null)
+        {
+            model.Categories = result.Data;
+        }
+        else
+        {
+            model.ErrorMessage = result.Error;
+        }
+
+        return View(model);
+    }
+
+    // Shows the empty Add category form
+    [HttpGet]
+    public async Task<IActionResult> AddCategory(int eventId)
+    {
+        var myEvent = await FindMyEventAsync(eventId);
+
+        if (myEvent == null)
+        {
+            TempData["Error"] = "We couldn't find that event.";
+            return RedirectToAction("Events");
+        }
+
+        var model = new CategoryFormViewModel();
+        model.EventID = myEvent.EventID;
+        model.EventName = myEvent.EventName;
+
+        return View("CategoryForm", model);
+    }
+
+    // Runs when the Add category form is submitted
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddCategory(CategoryFormViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("CategoryForm", model);
+        }
+
+        var result = await _api.CreateCategoryAsync(
+            model.EventID,
+            model.CategoryName,
+            model.DistanceKM!.Value,
+            model.MaxParticipants!.Value,
+            model.EntryFee!.Value);
+
+        if (result.IsUnauthorized)
+        {
+            return RedirectToAction("SessionExpired", "Account");
+        }
+
+        if (!result.Success)
+        {
+            ModelState.AddModelError(string.Empty, result.Error ?? "We couldn't add the category. Please try again.");
+            return View("CategoryForm", model);
+        }
+
+        TempData["Success"] = "The category has been added.";
+        return RedirectToAction("Categories", new { eventId = model.EventID });
+    }
+
+    // Shows the Edit category form filled in with the current details
+    [HttpGet]
+    public async Task<IActionResult> EditCategory(int eventId, int categoryId)
+    {
+        var myEvent = await FindMyEventAsync(eventId);
+
+        if (myEvent == null)
+        {
+            TempData["Error"] = "We couldn't find that event.";
+            return RedirectToAction("Events");
+        }
+
+        var result = await _api.GetCategoriesAsync(eventId);
+        var found = result.Data?.FirstOrDefault(c => c.CategoryID == categoryId);
+
+        if (!result.Success || found == null)
+        {
+            TempData["Error"] = "We couldn't find that category.";
+            return RedirectToAction("Categories", new { eventId = eventId });
+        }
+
+        var model = new CategoryFormViewModel();
+        model.CategoryID = found.CategoryID;
+        model.EventID = myEvent.EventID;
+        model.EventName = myEvent.EventName;
+        model.CategoryName = found.CategoryName;
+        model.DistanceKM = found.DistanceKM;
+        model.MaxParticipants = found.MaxParticipants;
+        model.EntryFee = found.EntryFee;
+
+        return View("CategoryForm", model);
+    }
+
+    // Runs when the Edit category form is submitted
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditCategory(CategoryFormViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("CategoryForm", model);
+        }
+
+        var result = await _api.UpdateCategoryAsync(model.CategoryID, model);
+
+        if (result.IsUnauthorized)
+        {
+            return RedirectToAction("SessionExpired", "Account");
+        }
+
+        if (!result.Success)
+        {
+            ModelState.AddModelError(string.Empty, result.Error ?? "We couldn't save your changes. Please try again.");
+            return View("CategoryForm", model);
+        }
+
+        TempData["Success"] = "The category has been updated.";
+        return RedirectToAction("Categories", new { eventId = model.EventID });
+    }
+
+    // Runs when the Organiser clicks Delete on a category
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteCategory(int eventId, int categoryId)
+    {
+        var result = await _api.DeleteCategoryAsync(categoryId);
+
+        if (result.IsUnauthorized)
+        {
+            return RedirectToAction("SessionExpired", "Account");
+        }
+
+        if (result.Success)
+        {
+            TempData["Success"] = "The category has been deleted.";
+        }
+        else
+        {
+            // For example: people are already enrolled in it
+            TempData["Error"] = result.Error;
+        }
+
+        return RedirectToAction("Categories", new { eventId = eventId });
+    }
 }
