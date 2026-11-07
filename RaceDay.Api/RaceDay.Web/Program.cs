@@ -1,6 +1,11 @@
 using RaceDay.Web.Services;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Always use dots for decimals (10.5), to match HTML number boxes and the API
+CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
