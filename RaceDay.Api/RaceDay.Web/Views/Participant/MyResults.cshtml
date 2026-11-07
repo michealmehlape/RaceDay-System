@@ -1,0 +1,50 @@
+﻿@model RaceDay.Web.ViewModels.MyResultsViewModel
+@{
+    ViewData["Title"] = "My results";
+}
+
+<h1>My results</h1>
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-warning">@Model.ErrorMessage</div>
+}
+else if (Model.Results.Count == 0)
+{
+    <p>You have no results yet. Results appear here after an organiser records them.</p>
+}
+else
+{
+    <table class="table table-bordered bg-white">
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Finish time</th>
+                <th>Position</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Results)
+            {
+                <tr>
+                    <td>@item.EventName</td>
+                    <td>@item.EventDate.ToString("dd MMM yyyy")</td>
+                    <td>@item.CategoryName</td>
+                    <td>@item.FinishTimeText</td>
+                    <td>
+                        @if (item.Status == "Finished")
+                        {
+                            @item.PositionText
+                        }
+                        else
+                        {
+                            <span class="status-badge status-@item.Status.ToLower()">@item.Status</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
