@@ -1,0 +1,77 @@
+﻿@model RaceDay.Web.ViewModels.EventDetailsViewModel
+@{
+    ViewData["Title"] = Model.Event.EventName;
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-warning">@TempData["Error"]</div>
+}
+
+<a asp-controller="Home" asp-action="Index">&larr; Back to events</a>
+
+<h1 class="mt-3">@Model.Event.EventName</h1>
+<span class="badge bg-dark">@Model.Event.EventType</span>
+
+<p class="mt-3">
+    <strong>Date:</strong> @Model.Event.EventDate.ToString("dd MMMM yyyy")<br />
+    <strong>Location:</strong> @Model.Event.Location<br />
+    <strong>Organiser:</strong> @Model.Event.OrganiserName
+</p>
+
+<p>@Model.Event.Description</p>
+
+<h2 class="mt-4">Categories</h2>
+
+@if (Model.Categories.Count == 0)
+{
+    <p>No categories have been added to this event yet.</p>
+}
+else
+{
+    <table class="table table-bordered bg-white">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Distance</th>
+                <th>Entry fee</th>
+                <th>Max participants</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in Model.Categories)
+            {
+                <tr>
+                    <td>@category.CategoryName</td>
+                    <td>@category.DistanceKM km</td>
+                    <td>R @category.EntryFee.ToString("0.00")</td>
+                    <td>@category.MaxParticipants</td>
+                    <td>
+                        @if (Model.Role == null)
+                        {
+                            <a asp-controller="Account" asp-action="Login">Log in to enter</a>
+                        }
+                        else if (Model.Role == "Organiser")
+                        {
+                            <span class="text-muted">Organisers cannot enter events</span>
+                        }
+                        else
+                        {
+                            <form asp-controller="Events" asp-action="Enrol" method="post">
+                                <input type="hidden" name="eventId" value="@Model.Event.EventID" />
+                                <input type="hidden" name="categoryId" value="@category.CategoryID" />
+                                <button type="submit" class="btn btn-primary btn-sm">Enter</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
