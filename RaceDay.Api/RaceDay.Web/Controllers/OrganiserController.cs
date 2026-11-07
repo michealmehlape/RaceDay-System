@@ -444,4 +444,86 @@ public class OrganiserController : Controller
 
         return View(model);
     }
+    // Shows every enrolled participant with a small form to enter their result
+    public async Task<IActionResult> Results(int eventId)
+    {
+        var eventsResult = await _api.GetMyEventsAsync();
+
+        if (eventsResult.IsUnauthorized)
+        {
+            return RedirectToAction("SessionExpired", "Account");
+        }
+
+        if (!eventsResult.Success || eventsResult.Data == null)
+        {
+            TempData["Error"] = eventsResult.Error;
+            return RedirectToAction("Events");
+        }
+
+        var myEvent = eventsResult.Data.FirstOrDefault(e => e.EventID == eventId);
+
+        if (myEvent == null)
+        {
+            TempData["Error"] = "We couldn't find that event.";
+            return RedirectToAction("Events");
+        }
+
+        var model = new EventEnrolmentsViewModel();
+        model.EventID = myEvent.EventID;
+        model.EventName = myEvent.EventName;
+
+        var categoriesResult = await _api.GetCategoriesAsync(eventId);
+
+        if (!categoriesResult.Success || categoriesResult.Data == null)
+        {
+            model.ErrorMessage = categoriesResult.Error;
+            return View(model);
+        }
+
+        foreach (var category in categoriesResult.Data)
+        {
+            var enrolmentsResult = await _api.GetCategoryEnrolmentsAsync(category.CategoryID);
+
+            if (enrolmentsResult.Success && enrolmentsResult.Data != null)
+            {
+                model.Enrolments.AddRange(enrolmentsResult.Data);
+            }
+            else
+            {
+                model.ErrorMessage = enrolmentsResult.Error;
+            }
+        }
+
+        return View(model);
+    }
+
+    // Runs when the Organiser saves one participant's result
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveResult(int eventId, int enrolmentId, string? finishTime, int? position, string status)
+    {
+        // An empty box means "no value"
+        if (string.IsNullOrWhiteSpace(finishTime))
+        {
+            finishTime = null;
+        }
+
+        var result = await _api.RecordResultAsync(enrolmentId, finishTime, position, status);
+
+        if (result.IsUnauthorized)
+        {
+            return RedirectToAction("SessionExpired", "Account");
+        }
+
+        if (result.Success)
+        {
+            TempData["Success"] = "The result has been saved.";
+        }
+        else
+        {
+            TempData["Error"] = result.Error;
+        }
+
+        return RedirectToAction("Results", new { eventId = eventId });
+    }
 }
