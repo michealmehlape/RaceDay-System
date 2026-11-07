@@ -196,7 +196,7 @@ public class EventsController : ControllerBase
     /// </summary>
     /// <remarks>Organiser only. The image is stored in Azure Blob Storage. JPG, PNG or WEBP, up to 5 MB.</remarks>
     /// <param name="id">The event's ID.</param>
-    /// <param name="file">The image file.</param>
+    /// <param name="request">The image file to upload.</param>
     /// <response code="200">Banner saved. Returns the event's new details.</response>
     /// <response code="400">No file, wrong file type, or the file is too big.</response>
     /// <response code="401">Not logged in.</response>
@@ -212,8 +212,11 @@ public class EventsController : ControllerBase
     [HttpPost("{id}/banner")]
     [SessionAuthorize(Role = "Organiser")]
     [Consumes("multipart/form-data")]
-    public async Task<ActionResult<EventResponse>> UploadBanner(int id, [FromForm] IFormFile file)
+    public async Task<ActionResult<EventResponse>> UploadBanner(int id, [FromForm] ImageUploadRequest request)
     {
+        var file = request.File;
+
+       
         var ev = await _db.Events.Include(e => e.Organiser)
             .FirstOrDefaultAsync(e => e.EventID == id);
 

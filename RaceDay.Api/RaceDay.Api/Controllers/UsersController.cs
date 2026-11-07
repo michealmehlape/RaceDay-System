@@ -94,7 +94,7 @@ public class UsersController : ControllerBase
     /// Uploads a profile picture for the logged-in user.
     /// </summary>
     /// <remarks>The picture is stored in Azure Blob Storage. JPG, PNG or WEBP, up to 2 MB.</remarks>
-    /// <param name="file">The image file.</param>
+    /// <param name="request">The image file to upload.</param>
     /// <response code="200">Picture saved. Returns the user's new details.</response>
     /// <response code="400">No file, wrong file type, or the file is too big.</response>
     /// <response code="401">Not logged in.</response>
@@ -105,9 +105,12 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     [HttpPost("profile/picture")]
     [Consumes("multipart/form-data")]
-    public async Task<ActionResult<UserResponse>> UploadProfilePicture([FromForm] IFormFile file)
+    public async Task<ActionResult<UserResponse>> UploadProfilePicture([FromForm] ImageUploadRequest request)
     {
+        var file = request.File;
+
         var userId = HttpContext.Session.GetCurrentUserId();
+        
         var user = await _db.Users.FindAsync(userId);
         if (user is null) return Unauthorized("Account no longer exists.");
 
