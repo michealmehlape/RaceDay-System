@@ -1,0 +1,66 @@
+﻿@model RaceDay.Web.ViewModels.MyEventsViewModel
+@{
+    ViewData["Title"] = "My events";
+}
+
+<h1>My events</h1>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-warning">@TempData["Error"]</div>
+}
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-warning">@Model.ErrorMessage</div>
+}
+else if (Model.Enrolments.Count == 0)
+{
+    <p>You have not entered any events yet.</p>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Find an event</a>
+}
+else
+{
+    <table class="table table-bordered bg-white">
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Distance</th>
+                <th>Bib number</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Enrolments)
+            {
+                <tr>
+                    <td>
+                        <a asp-controller="Events" asp-action="Details" asp-route-id="@item.EventID">@item.EventName</a>
+                    </td>
+                    <td>@item.EventDate.ToString("dd MMM yyyy")</td>
+                    <td>@item.CategoryName</td>
+                    <td>@item.DistanceKM km</td>
+                    <td>@item.BibNumber</td>
+                    <td>
+                        <span class="status-badge status-@item.Status.ToLower()">@item.Status</span>
+                    </td>
+                    <td>
+                        <form asp-controller="Participant" asp-action="CancelEnrolment" method="post"
+                              onsubmit="return confirm('Cancel this enrolment?');">
+                            <input type="hidden" name="enrolmentId" value="@item.EnrolmentID" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Cancel</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
