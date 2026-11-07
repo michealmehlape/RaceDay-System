@@ -508,6 +508,23 @@ public class OrganiserController : Controller
             finishTime = null;
         }
 
+        // If a time was typed, check it looks like 00:48:30 before sending it to the API
+        if (finishTime != null)
+        {
+            TimeSpan parsedTime;
+            bool timeIsValid = TimeSpan.TryParseExact(
+                finishTime.Trim(),
+                @"hh\:mm\:ss",
+                System.Globalization.CultureInfo.InvariantCulture,
+                out parsedTime);
+
+            if (!timeIsValid)
+            {
+                TempData["Error"] = "Please enter the finish time like 00:48:30 (hours:minutes:seconds).";
+                return RedirectToAction("Results", new { eventId = eventId });
+            }
+        }
+
         var result = await _api.RecordResultAsync(enrolmentId, finishTime, position, status);
 
         if (result.IsUnauthorized)
