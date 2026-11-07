@@ -93,6 +93,47 @@ public class ApiService
     public Task<ApiResult<List<OrganiserEventDto>>> GetMyEventsAsync()
     {
         return SendAsync<List<OrganiserEventDto>>(HttpMethod.Get, "api/events/mine");
+
+    }
+
+    public Task<ApiResult<EventDto>> CreateEventAsync(EventFormViewModel model)
+    {
+        return SendAsync<EventDto>(HttpMethod.Post, "api/events", BuildEventBody(model));
+    }
+
+    public Task<ApiResult<EventDto>> UpdateEventAsync(int id, EventFormViewModel model)
+    {
+        return SendAsync<EventDto>(HttpMethod.Put, "api/events/" + id, BuildEventBody(model));
+    }
+
+    public Task<ApiResult<string>> DeleteEventAsync(int id)
+    {
+        return SendAsync<string>(HttpMethod.Delete, "api/events/" + id);
+    }
+
+    public Task<ApiResult<CategoryDto>> CreateCategoryAsync(int eventId, string name, decimal distanceKm, int maxParticipants, decimal entryFee)
+    {
+        var body = new
+        {
+            categoryName = name,
+            distanceKM = distanceKm,
+            maxParticipants = maxParticipants,
+            entryFee = entryFee
+        };
+
+        return SendAsync<CategoryDto>(HttpMethod.Post, "api/events/" + eventId + "/categories", body);
+    }
+    // Builds the JSON the API expects when creating or updating an event
+    private static object BuildEventBody(EventFormViewModel model)
+    {
+        return new
+        {
+            eventName = model.EventName,
+            eventDate = model.EventDate,
+            location = model.Location,
+            description = model.Description,
+            eventType = model.EventType
+        };
     }
 
     // ---------- Core: every API call goes through here ----------
