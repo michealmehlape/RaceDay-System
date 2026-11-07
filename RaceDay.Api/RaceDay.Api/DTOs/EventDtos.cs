@@ -32,3 +32,8 @@ public class EventResponse
     public int OrganiserID { get; set; }
     public string OrganiserName { get; set; } = string.Empty;
 }
+public class OrganiserEventResponse : EventResponse
+{
+    public int CategoryCount { get; set; }
+    public int TotalEnrolments { get; set; }
+}

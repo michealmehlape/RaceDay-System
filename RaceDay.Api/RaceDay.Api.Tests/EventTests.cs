@@ -123,4 +123,45 @@ public class EventTests : IDisposable
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
+
+    [Fact]
+    public async Task GetMine_ReturnsOnlyOwnEventsIncludingPastOnes()
+    {
+        var organiser = await TestHelpers.LoggedInClientAsync(_factory, "org1@test.com", "Organiser");
+        var other = await TestHelpers.LoggedInClientAsync(_factory, "org2@test.com", "Organiser");
+        await TestHelpers.CreateEventAsync(organiser, TestHelpers.ValidEvent(daysFromNow: 30));
+        await TestHelpers.CreateEventAsync(organiser, TestHelpers.ValidEvent(daysFromNow: -10));
+        await TestHelpers.CreateEventAsync(other);
+
+        var response = await organiser.GetAsync("/api/events/mine");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var events = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(2, events.GetArrayLength());
+    }
+
+    [Fact]
+    public async Task GetMine_AsParticipant_Returns403()
+    {
+        var participant = await TestHelpers.LoggedInClientAsync(_factory, "runner@test.com");
+
+        var response = await participant.GetAsync("/api/events/mine");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetMine_CountsCategoriesAndEnrolments()
+    {
+        var organiser = await TestHelpers.LoggedInClientAsync(_factory, "org@test.com", "Organiser");
+        var eventId = await TestHelpers.CreateEventAsync(organiser);
+        var categoryId = await TestHelpers.CreateCategoryAsync(organiser, eventId);
+        var runner = await TestHelpers.LoggedInClientAsync(_factory, "runner@test.com");
+        await runner.PostAsync($"/api/categories/{categoryId}/enrol", null);
+
+        var events = await organiser.GetFromJsonAsync<JsonElement>("/api/events/mine");
+
+        Assert.Equal(1, events[0].GetProperty("categoryCount").GetInt32());
+        Assert.Equal(1, events[0].GetProperty("totalEnrolments").GetInt32());
+    }
 }

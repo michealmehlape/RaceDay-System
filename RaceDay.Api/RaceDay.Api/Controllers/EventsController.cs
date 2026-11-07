@@ -41,6 +41,51 @@ public class EventsController : ControllerBase
     }
 
 
+
+
+    /// <summary>
+    /// Lists every event owned by the logged-in Organiser, past and upcoming, with enrolment totals.
+    /// </summary>
+    /// <remarks>
+    /// Organiser only. Used by the Organiser dashboard.
+    /// </remarks>
+    /// <response code="200">The Organiser's events, soonest first, empty if they have none.</response>
+    /// <response code="401">Not logged in.</response>
+    /// <response code="403">The user is not an Organiser.</response>
+    [ProducesResponseType<List<OrganiserEventResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [HttpGet("mine")]
+    [SessionAuthorize(Role = "Organiser")]
+    public async Task<ActionResult<List<OrganiserEventResponse>>> GetMine()
+    {
+        var organiserId = HttpContext.Session.GetCurrentUserId();
+
+        var events = await _db.Events
+            .Where(e => e.OrganiserID == organiserId)
+            .OrderBy(e => e.EventDate)
+            .Select(e => new OrganiserEventResponse
+            {
+                EventID = e.EventID,
+                EventName = e.EventName,
+                EventDate = e.EventDate,
+                Location = e.Location,
+                Description = e.Description,
+                EventType = e.EventType,
+                BannerImageUrl = e.BannerImageUrl,
+                OrganiserID = e.OrganiserID,
+                OrganiserName = e.Organiser.FullName,
+                CategoryCount = e.Categories.Count(),
+                TotalEnrolments = e.Categories.Sum(c => c.Enrolments.Count())
+            })
+            .ToListAsync();
+
+        return Ok(events);
+    }
+
+
+
+
     /// <summary>
     /// Returns the details of one event.
     /// </summary>
