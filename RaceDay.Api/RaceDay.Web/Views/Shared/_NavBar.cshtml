@@ -21,7 +21,12 @@
 
                 @if (role == "Participant")
                 {
-                    @* Participant links go here as we build their pages *@
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Participant" asp-action="MyEvents">My events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Participant" asp-action="MyResults">My results</a>
+                    </li>
                 }
 
                 @if (role == "Organiser")
