@@ -1,8 +1,8 @@
-name: Part 2 - Build and Test API
+name: Build and Test (API and Web)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, Part3 ]
   pull_request:
     branches: [ main ]
 
@@ -22,8 +22,11 @@ jobs:
       - name: Restore packages
         run: dotnet restore RaceDay.Api/RaceDay.Api.slnx
 
-      - name: Build
+      - name: Build the solution
         run: dotnet build RaceDay.Api/RaceDay.Api.slnx --configuration Release --no-restore
+
+      - name: Build the MVC web app
+        run: dotnet build RaceDay.Api/RaceDay.Web/RaceDay.Web.csproj --configuration Release
 
       - name: Run unit tests
         run: dotnet test RaceDay.Api/RaceDay.Api.slnx --configuration Release --no-build --verbosity normal
