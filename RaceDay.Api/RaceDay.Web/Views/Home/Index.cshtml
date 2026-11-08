@@ -37,6 +37,10 @@ else
     <div class="row">
         @foreach (var item in Model.Events)
         {
+@if (!string.IsNullOrEmpty(item.BannerImageUrl))
+{
+    <img src="@item.BannerImageUrl" alt="@item.EventName banner" class="event-banner mb-2" />
+}
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
                     <div class="card-body">

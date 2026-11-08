@@ -218,19 +218,22 @@ public class ApiService
         try
         {
             using var request = new HttpRequestMessage(method, url);
-            if (body is not null)
+
+            // A file upload is sent exactly as it is, anything else is sent as JSON
+            if (body is HttpContent readyContent)
+            {
+                request.Content = readyContent;
+            }
+            else if (body is not null)
+            {
                 request.Content = JsonContent.Create(body);
+            }
 
             // Send this user's own API session cookie, if they have one
             var cookie = Session.GetString(ApiCookieKey);
-            if (body is HttpContent readyContent)
+            if (!string.IsNullOrEmpty(cookie))
             {
-                
-                request.Content = readyContent;
-            }
-            else if (body != null)
-            {
-                request.Content = JsonContent.Create(body);   
+                request.Headers.Add("Cookie", cookie);
             }
 
             using var response = await _http.SendAsync(request);

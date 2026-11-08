@@ -18,6 +18,11 @@
 <h1 class="mt-3">@Model.Event.EventName</h1>
 <span class="badge bg-dark">@Model.Event.EventType</span>
 
+@if (!string.IsNullOrEmpty(Model.Event.BannerImageUrl))
+{
+    <img src="@Model.Event.BannerImageUrl" alt="@Model.Event.EventName banner" class="event-banner mt-3" />
+}
+
 <p class="mt-3">
     <strong>Date:</strong> @Model.Event.EventDate.ToString("dd MMMM yyyy")<br />
     <strong>Location:</strong> @Model.Event.Location<br />

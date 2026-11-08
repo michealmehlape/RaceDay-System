@@ -129,3 +129,10 @@ h1, h2, h3, h4, .rd-brand {
     white-space: nowrap;
     line-height: 60px;
 }
+/* Event banner images */
+.event-banner {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 8px;
+}
