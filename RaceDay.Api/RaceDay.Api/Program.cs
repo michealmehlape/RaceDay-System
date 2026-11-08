@@ -38,7 +38,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+// In development the API is reached over plain http (for example from Docker), so skip the redirect
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseSession();
 

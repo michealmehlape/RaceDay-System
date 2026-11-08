@@ -1,16 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap');
 
 :root {
-    --rd-navy: #0b1f3a;
-    --rd-orange: #ff5a1f;
-    --rd-orange-dark: #e04810;
-    --rd-lime: #b6f23a;
-    --rd-bg: #f4f6fa;
-    --rd-text: #1c2430;
-    --bs-primary: var(--rd-orange);
-    --bs-primary-rgb: 255, 90, 31;
-    --bs-link-color-rgb: 224, 72, 16;
-    --bs-link-hover-color-rgb: 11, 31, 58;
+    --rd-plum: #2b1b3d;
+    --rd-plum-soft: #3d2a54;
+    --rd-teal: #00c2a8;
+    --rd-teal-dark: #00a38c;
+    --rd-teal-text: #007a69;
+    --rd-gold: #ffb703;
+    --rd-bg: #f7f4ef;
+    --rd-text: #231a33;
+    --rd-card: #ffffff;
+    --rd-line: #e6e0d6;
+    --bs-primary: var(--rd-teal);
+    --bs-primary-rgb: 0, 194, 168;
+    --bs-link-color-rgb: 0, 122, 105;
+    --bs-link-hover-color-rgb: 43, 27, 61;
 }
 
 html {
@@ -23,31 +27,44 @@ body {
     margin-bottom: 60px;
     background: var(--rd-bg);
     color: var(--rd-text);
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'DM Sans', system-ui, sans-serif;
 }
 
 h1, h2, h3, h4, .rd-brand {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: -0.02em;
+    color: var(--rd-plum);
 }
 
 /* Navbar */
 .rd-navbar {
-    background: var(--rd-navy);
-    border-bottom: 4px solid var(--rd-orange);
+    background: var(--rd-plum);
+    border-bottom: 4px solid var(--rd-gold);
 }
 
 .rd-brand {
-    font-size: 1.8rem;
-    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.6rem;
     color: #fff;
+    text-decoration: none;
 }
 
     .rd-brand span {
-        color: var(--rd-orange);
+        color: var(--rd-teal);
     }
+
+    .rd-brand:hover {
+        color: #fff;
+    }
+
+.rd-logo {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+}
 
 .rd-navbar .nav-link {
     color: rgba(255, 255, 255, 0.85);
@@ -55,12 +72,12 @@ h1, h2, h3, h4, .rd-brand {
 }
 
     .rd-navbar .nav-link:hover {
-        color: var(--rd-lime);
+        color: var(--rd-gold);
     }
 
 .role-pill {
-    background: var(--rd-lime);
-    color: var(--rd-navy);
+    background: var(--rd-gold);
+    color: var(--rd-plum);
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.05em;
@@ -71,24 +88,106 @@ h1, h2, h3, h4, .rd-brand {
 
 /* Buttons and form focus */
 .btn-primary {
-    --bs-btn-color: #fff;
-    --bs-btn-bg: var(--rd-orange);
-    --bs-btn-border-color: var(--rd-orange);
-    --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: var(--rd-orange-dark);
-    --bs-btn-hover-border-color: var(--rd-orange-dark);
-    --bs-btn-active-color: #fff;
-    --bs-btn-active-bg: var(--rd-orange-dark);
-    --bs-btn-active-border-color: var(--rd-orange-dark);
-    --bs-btn-disabled-bg: var(--rd-orange);
-    --bs-btn-disabled-border-color: var(--rd-orange);
+    --bs-btn-color: var(--rd-plum);
+    --bs-btn-bg: var(--rd-teal);
+    --bs-btn-border-color: var(--rd-teal);
+    --bs-btn-hover-color: var(--rd-plum);
+    --bs-btn-hover-bg: var(--rd-teal-dark);
+    --bs-btn-hover-border-color: var(--rd-teal-dark);
+    --bs-btn-active-color: var(--rd-plum);
+    --bs-btn-active-bg: var(--rd-teal-dark);
+    --bs-btn-active-border-color: var(--rd-teal-dark);
+    --bs-btn-disabled-color: var(--rd-plum);
+    --bs-btn-disabled-bg: var(--rd-teal);
+    --bs-btn-disabled-border-color: var(--rd-teal);
     font-weight: 600;
+    border-radius: 10px;
 }
 
-.form-control:focus,
-.form-select:focus {
-    border-color: var(--rd-orange);
-    box-shadow: 0 0 0 0.2rem rgba(255, 90, 31, 0.25);
+.btn-outline-dark {
+    --bs-btn-color: var(--rd-plum);
+    --bs-btn-border-color: var(--rd-plum);
+    --bs-btn-hover-bg: var(--rd-plum);
+    --bs-btn-hover-border-color: var(--rd-plum);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: var(--rd-plum);
+    --bs-btn-active-border-color: var(--rd-plum);
+    border-radius: 10px;
+}
+
+.btn-outline-danger {
+    border-radius: 10px;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+    border-color: var(--rd-line);
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--rd-teal);
+        box-shadow: 0 0 0 0.2rem rgba(0, 194, 168, 0.25);
+    }
+
+/* Cards, tables and alerts */
+.card {
+    border: 1px solid var(--rd-line);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--rd-card);
+    box-shadow: 0 2px 10px rgba(43, 27, 61, 0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(43, 27, 61, 0.12);
+    }
+
+.card-footer {
+    background: #fbf9f5;
+    border-top: 1px solid var(--rd-line);
+}
+
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+    .table thead th {
+        background: var(--rd-plum);
+        color: #fff;
+        font-weight: 600;
+        border-color: var(--rd-plum-soft);
+    }
+
+.alert {
+    border-radius: 12px;
+    border: 0;
+}
+
+.alert-success {
+    background: #d6f5ee;
+    color: #006b5b;
+}
+
+.alert-warning {
+    background: #fff1c9;
+    color: #7a5200;
+}
+
+.alert-danger {
+    background: #fde2e8;
+    color: #a3173c;
+}
+
+.badge.bg-dark {
+    background: var(--rd-plum) !important;
+    border-radius: 999px;
+    padding: 0.45em 0.9em;
+    font-weight: 600;
 }
 
 /* Colour-coded statuses (used on enrolment and result pages) */
@@ -105,20 +204,28 @@ h1, h2, h3, h4, .rd-brand {
 .status-confirmed,
 .status-registered,
 .status-finished {
-    background: #d9f7e3;
-    color: #146c35;
+    background: #d6f5ee;
+    color: #006b5b;
 }
 
 .status-pending {
-    background: #fff0cc;
-    color: #8a5a00;
+    background: #fff1c9;
+    color: #7a5200;
 }
 
 .status-cancelled,
 .status-dnf,
 .status-dns {
-    background: #fde0e0;
-    color: #9b1c1c;
+    background: #fde2e8;
+    color: #a3173c;
+}
+
+/* Event banner images */
+.event-banner {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 14px;
 }
 
 /* Footer */
@@ -128,11 +235,4 @@ h1, h2, h3, h4, .rd-brand {
     width: 100%;
     white-space: nowrap;
     line-height: 60px;
-}
-/* Event banner images */
-.event-banner {
-    width: 100%;
-    max-height: 220px;
-    object-fit: cover;
-    border-radius: 8px;
 }

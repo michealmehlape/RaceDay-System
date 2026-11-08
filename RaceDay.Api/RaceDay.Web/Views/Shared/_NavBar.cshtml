@@ -7,7 +7,15 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark rd-navbar">
     <div class="container">
-        <a class="navbar-brand rd-brand" asp-controller="Home" asp-action="Index">RACE<span>DAY</span></a>
+        <a class="navbar-brand rd-brand" asp-controller="Home" asp-action="Index">
+            <svg class="rd-logo" viewBox="0 0 40 40" aria-hidden="true">
+                <rect width="40" height="40" rx="12" fill="#00c2a8" />
+                <rect x="7" y="12.5" width="26" height="15" rx="7.5" fill="none" stroke="#2b1b3d" stroke-width="3.4" />
+                <rect x="13" y="18" width="14" height="4" rx="2" fill="#2b1b3d" opacity=".35" />
+                <circle cx="29.5" cy="14.5" r="4" fill="#ffb703" stroke="#00c2a8" stroke-width="1.6" />
+            </svg>
+            Race<span>Day</span>
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                 aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -62,7 +70,7 @@
                         <a class="nav-link" asp-controller="Account" asp-action="Login">Log in</a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-primary btn-sm ms-lg-2" asp-controller="Account" asp-action="Register">Join RaceDay</a>
+                        <a class="btn btn-primary btn-sm ms-lg-2" asp-controller="Account" asp-action="Register">Register</a>
                     </li>
                 }
             </ul>
