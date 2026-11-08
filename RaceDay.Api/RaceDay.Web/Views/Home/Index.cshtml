@@ -37,12 +37,13 @@ else
     <div class="row">
         @foreach (var item in Model.Events)
         {
-@if (!string.IsNullOrEmpty(item.BannerImageUrl))
-{
-    <img src="@item.BannerImageUrl" alt="@item.EventName banner" class="event-banner mb-2" />
-}
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(item.BannerImageUrl))
+                    {
+                        <img src="@item.BannerImageUrl" alt="@item.EventName banner" class="card-img-top"
+                             style="height:160px;object-fit:cover;" />
+                    }
                     <div class="card-body">
                         <span class="badge bg-dark">@item.EventType</span>
                         <h5 class="card-title mt-2">@item.EventName</h5>
@@ -50,9 +51,9 @@ else
                         <p class="card-text">@item.Description</p>
                     </div>
                     <div class="card-footer d-flex justify-content-between align-items-center">
-    <small class="text-muted">Organised by @item.OrganiserName</small>
-    <a asp-controller="Events" asp-action="Details" asp-route-id="@item.EventID" class="btn btn-primary btn-sm">View details</a>
-</div>
+                        <small class="text-muted">Organised by @item.OrganiserName</small>
+                        <a asp-controller="Events" asp-action="Details" asp-route-id="@item.EventID" class="btn btn-primary btn-sm">View details</a>
+                    </div>
                 </div>
             </div>
         }
