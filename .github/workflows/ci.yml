@@ -30,3 +30,6 @@ jobs:
 
       - name: Run unit tests
         run: dotnet test RaceDay.Api/RaceDay.Api.slnx --configuration Release --no-build --verbosity normal
+
+      - name: Build the web Docker image
+        run: docker build -t raceday-web RaceDay.Api/RaceDay.Web
