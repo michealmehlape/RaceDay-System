@@ -124,3 +124,51 @@ https://youtu.be/vr5e4cKd5dM
 I used an AI assistant (Claude) for help while building Part 2: explanations of the concepts,
 debugging and test cases.
 
+
+## Part 3 - MVC web app (RaceDay.Web)
+
+An ASP.NET Core MVC web app that uses the Part 2 API for all data. It has no database access of its own. Organisers manage events, categories, enrolments and results; Participants browse and enter events, see their results and manage their profile. Images (event banners and profile pictures) are stored in Azure Blob Storage, and only the API talks to Azure.
+
+### Run it with Docker
+
+You need Docker Desktop, SQL Server LocalDB (for the API), and the Azure connection string in the API's User Secrets (`AzureBlob:ConnectionString` and `AzureBlob:ContainerName`).
+
+1. Start the API so it listens on all addresses (from the `RaceDay.Api/RaceDay.Api` folder):
+
+```
+$env:ASPNETCORE_ENVIRONMENT = "Development"
+dotnet run --urls "http://0.0.0.0:5161"
+```
+
+2. Build and run the web app (from the `RaceDay.Api/RaceDay.Web` folder):
+
+```
+docker build -t raceday-web .
+docker run --rm -p 8080:8080 -e ApiSettings__BaseUrl=http://host.docker.internal:5161/ raceday-web
+```
+
+3. Open http://localhost:8080
+
+Without Docker, run both projects from Visual Studio with "Multiple startup projects" (web: https://localhost:7091, API: https://localhost:7014).
+
+### Continuous integration
+
+The workflow in `.github/workflows/ci.yml` runs on pushes to `main` and `Part3`. It builds the API and the MVC app, runs the tests, and builds the web Docker image.
+
+![Green CI build](docs/images/ci-part3.png)
+
+### Video
+
+https://youtu.be/vtB7MLGxKi4
+
+### Design
+
+RaceDay uses a plum, teal and saffron theme with a running-track logo. Status badges are colour-coded: teal for registered and finished, amber for pending, rose for cancelled, DNF and DNS.
+
+### Use of AI
+
+I used an AI assistant (Claude) for help while building Part 3, xplanations of the concepts,
+debugging and test cases. as well as helping with Docker Set Up
+### Changes and decisions
+
+See `docs/part3-changes.md`.
